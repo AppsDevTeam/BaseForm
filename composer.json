@@ -1,30 +1,28 @@
 {
-	"name": "adt/bootstrap-form-renderer",
+	"name": "adt/base-form",
 	"type": "library",
-	"description": "Nette forms renderer with bootstrap and snippet support",
+	"description": "Nette abstract form class with snippet support",
 	"keywords": ["nette", "kdyby", "appsdevteam", "forms", "bootstrap"],
 	"homepage": "http://appsdevteam.com",
 	"license": ["BSD-3-Clause", "GPL-2.0", "GPL-3.0"],
 	"authors": [
 		{
-			"name": "Tomáš Kudělka",
+			"name": "Apps Dev Team",
 			"homepage": "http://appsdevteam.com",
-			"email": "tomas@appsdevteam.com"
+			"email": "hello@appsdevteam.com"
 		}
 	],
 	"support": {
-		"email": "tomas@appsdevteam.com",
-		"issues": "https://github.com/AppsDevTeam/BootstrapFormRenderer/issues"
+		"email": "hello@appsdevteam.com",
+		"issues": "https://github.com/AppsDevTeam/BaseForm/issues"
 	},
 	"require": {
-		"nette/nette": "~2.1@dev",
-		"adt/"
-	},
-	"require-dev": {
-		"nette/tester": "@dev",
-		"jakub-onderka/php-parallel-lint": "~0.6"
+		"nette/nette": "~2.2",
+		"adt/bootstrap-form-renderer": "dev-master"
 	},
 	"autoload": {
-		"psr-4": { "ADT\\BaseForm\\": "src/" }
+		"psr-0": {
+			"ADT\\BootstrapFormRenderer\\": "src/"
+		}
 	}
 }
