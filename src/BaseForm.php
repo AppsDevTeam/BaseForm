@@ -20,13 +20,6 @@ abstract class BaseForm extends \Nette\Application\UI\Control
 
 	abstract function processForm($values);
 
-	public function __construct(\Nette\DI\Container $dic)
-	{
-		$this->injectProperties($dic);
-		parent::__construct();
-		return $this;
-	}
-
 	public function createComponentForm()
 	{
 		return new Form();
