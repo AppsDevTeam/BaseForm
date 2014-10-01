@@ -21,7 +21,7 @@
 		"adt/bootstrap-form-renderer": "dev-master"
 	},
 	"autoload": {
-		"psr-0": {
+		"psr-4": {
 			"ADT\\BaseForm\\": "src/"
 		}
 	}
