@@ -20,7 +20,7 @@ $('form.ajax-form').on('submit', function(e) {
 	}
 });	
 
-$('form').parent().has('[id*=snippet]').on('change', '[data-invalidate]', function(e) {
+$('form').parent().on('change', '[data-invalidate]', function(e) {
 	blockSubmit = true;
 	var $input = $(this);
 	var $form = $input.closest('form');
