@@ -22,7 +22,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"ADT\\BaseForm\\": "src/"
+			"ADT\\": "src/"
 		}
 	}
 }
