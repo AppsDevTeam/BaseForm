@@ -78,6 +78,8 @@ abstract class BaseForm extends \Nette\Application\UI\Control
 				};
 			}
 		}
+		
+		$this->template->renderer = $this->form->renderer;
 	}
 
 	public function processFormCallback(Form $form)
@@ -97,7 +99,6 @@ abstract class BaseForm extends \Nette\Application\UI\Control
 		}
 		
 		$this->template->setFile($this->templateFilename);
-		$this->template->renderer = $this->form->renderer;
 		$this->template->render();
 	}
 }
