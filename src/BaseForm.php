@@ -84,7 +84,16 @@ abstract class BaseForm extends \Nette\Application\UI\Control
 
 	public function processFormCallback(Form $form)
 	{
-		$this->processForm($form->values);
+		$values = $form->values;
+		foreach ($values as $key => $value) {
+			if ($form[$key] instanceof \Nette\Forms\Controls\Checkbox && $value === FALSE) {
+				$values[$key] = 0;
+			} elseif ($value === '') {
+				$values[$key] = NULL;
+			}
+		}
+		
+		$this->processForm($values);
 	}
 
 	public function validateFormCallback(Form $form)
