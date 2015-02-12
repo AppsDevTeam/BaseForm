@@ -92,7 +92,7 @@ abstract class BaseForm extends \Nette\Application\UI\Control
 		foreach ($values as $key => $value) {
 			if ($form[$key] instanceof \Nette\Forms\Controls\Checkbox && $value === FALSE) {
 				$values[$key] = 0;
-			} elseif ($value === '') {
+			} elseif ($value === '' || $value === ':null') {
 				$values[$key] = NULL;
 			}
 		}
