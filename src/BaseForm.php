@@ -41,14 +41,16 @@ abstract class BaseForm extends \Nette\Application\UI\Control
 	protected function attached($presenter)
 	{
 		parent::attached($presenter);
-		$form = $this->getForm();
-		$this->init($form);
 		
-		$form->setDefaults($this->defaults);
+		$form = $this->getForm();
 		
 		if(isset($presenter->translator)) {
 			$form->setTranslator($presenter->translator);
 		}
+		
+		$this->init($form);
+		
+		$form->setDefaults($this->defaults);
 		
 		$this->getForm()->addHidden('_invalidate');
 
