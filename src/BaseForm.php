@@ -77,7 +77,12 @@ abstract class BaseForm extends \Nette\Application\UI\Control
 				}
 			}
 		}	else {
+
+			if ($form->onSuccess === NULL) {
+				$form->onSuccess = [];
+			}
 			array_unshift($form->onSuccess, $this->processFormCallback);
+
 			if($this->ajax) {
 				$form->onError[] = function() {
 					$this->redrawControl();
