@@ -9,11 +9,11 @@ use \Nette\Application\UI\Form;
  * @property-read \App\Presenters\BasePresenter $presenter
  */
 abstract class BaseForm extends \Nette\Application\UI\Control
-{	
+{
 	public $templateFilename = NULL;
-	
+
 	protected $ajax = FALSE;
-	
+
 	protected $defaults = array();
 
 	abstract function init(Form $form);
@@ -37,21 +37,21 @@ abstract class BaseForm extends \Nette\Application\UI\Control
 	{
 		$this->defaults = $defaults;
 	}
-	
+
 	protected function attached($presenter)
 	{
 		parent::attached($presenter);
-		
+
 		$form = $this->getForm();
-		
+
 		if(isset($presenter->translator)) {
 			$form->setTranslator($presenter->translator);
 		}
-		
+
 		$this->init($form);
-		
+
 		$form->setDefaults($this->defaults);
-		
+
 		$this->getForm()->addHidden('_invalidate');
 
 		if (method_exists($this, 'validateForm')) {
@@ -61,12 +61,12 @@ abstract class BaseForm extends \Nette\Application\UI\Control
 		if ($this->ajax) {
 			$form->getElementPrototype()->class[] = 'adt-form';
 		}
-		
+
 		$this->templateFilename = ($this->templateFilename ? $this->templateFilename : str_replace('.php' ,'.latte', $this->reflection->getFileName()));
-		
+
 		if ($this->presenter->isAjax() && $form['_invalidate']->value) {
 			$this->redrawControl('formArea');
-			if (file_exists($this->templateFilename)) {	
+			if (file_exists($this->templateFilename)) {
 				foreach(explode(' ', $form['_invalidate']->value) as $snippetName) {
 					$this->redrawControl($snippetName);
 				}
@@ -77,14 +77,14 @@ abstract class BaseForm extends \Nette\Application\UI\Control
 				}
 			}
 		}	else {
-			$form->onSuccess[] = $this->processFormCallback;
+			array_unshift($form->onSuccess, $this->processFormCallback);
 			if($this->ajax) {
 				$form->onError[] = function() {
 					$this->redrawControl();
 				};
 			}
 		}
-		
+
 		$this->template->renderer = $this->form->renderer;
 	}
 
@@ -98,7 +98,7 @@ abstract class BaseForm extends \Nette\Application\UI\Control
 				$values[$key] = NULL;
 			}
 		}
-		
+
 		$this->processForm($values);
 	}
 
@@ -112,7 +112,7 @@ abstract class BaseForm extends \Nette\Application\UI\Control
 		if (!file_exists($this->templateFilename)) {
 			$this->templateFilename = __DIR__ . DIRECTORY_SEPARATOR . '@baseForm.latte';
 		}
-		
+
 		$this->template->setFile($this->templateFilename);
 		$this->template->render();
 	}
