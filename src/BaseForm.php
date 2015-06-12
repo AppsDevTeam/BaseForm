@@ -44,6 +44,8 @@ abstract class BaseForm extends \Nette\Application\UI\Control
 
 		$form = $this->getForm();
 
+		$form->addHidden('_invalidate');
+
 		if(isset($presenter->translator)) {
 			$form->setTranslator($presenter->translator);
 		}
@@ -51,8 +53,6 @@ abstract class BaseForm extends \Nette\Application\UI\Control
 		$this->init($form);
 
 		$form->setDefaults($this->defaults);
-
-		$this->getForm()->addHidden('_invalidate');
 
 		if (method_exists($this, 'validateForm')) {
 			$form->onValidate[] = $this->validateFormCallback;
