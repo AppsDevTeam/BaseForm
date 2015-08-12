@@ -20,6 +20,13 @@ abstract class BaseForm extends \Nette\Application\UI\Control
 
 	abstract function processForm($values);
 
+	/**
+	 * Pokud chceš nastavit method nebo cokoliv jiného, přičemž ještě nesmí existovat
+	 * žádné prvky, poděd tuto funkci, přes parent::createComponentForm() získej form
+	 * a nastav mu vše co potřebuješ.
+	 *
+	 * @return Form
+	 */
 	public function createComponentForm()
 	{
 		return new Form();
