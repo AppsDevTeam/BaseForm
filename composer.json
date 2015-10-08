@@ -2,7 +2,7 @@
 	"name": "adt/base-form",
 	"type": "library",
 	"description": "Nette abstract form class with snippet support",
-	"keywords": ["nette", "kdyby", "appsdevteam", "forms", "bootstrap"],
+	"keywords": ["nette", "kdyby", "appsdevteam", "forms"],
 	"homepage": "http://appsdevteam.com",
 	"license": ["BSD-3-Clause", "GPL-2.0", "GPL-3.0"],
 	"authors": [
@@ -17,8 +17,7 @@
 		"issues": "https://github.com/AppsDevTeam/BaseForm/issues"
 	},
 	"require": {
-		"nette/nette": "~2.2",
-		"adt/bootstrap-form-renderer": "dev-master"
+		"nette/nette": "~2.2"
 	},
 	"autoload": {
 		"psr-4": {
