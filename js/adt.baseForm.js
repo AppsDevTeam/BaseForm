@@ -18,13 +18,13 @@ $('form.ajax-form').on('submit', function(e) {
 			});
 		}
 	}
-});	
+});
 
 $('form').parent().on('change', '[data-invalidate]', function(e) {
 	blockSubmit = true;
 	var $input = $(this);
 	var $form = $input.closest('form');
-	var $submit = $form.find('input[type=submit]');
+	var $submit = $form.find('[type=submit]');
 	var $_invalidate = $form.find('input[name=_invalidate]');
 	$_invalidate.val($input.data('invalidate'));
 	$submit.attr('formnovalidate', 'formnovalidate');
@@ -34,6 +34,6 @@ $('form').parent().on('change', '[data-invalidate]', function(e) {
 		blockSubmit = false;
 		if ($submittedForm) {
 			$submittedForm.trigger('submit');
-		}	
+		}
 	});
 });
