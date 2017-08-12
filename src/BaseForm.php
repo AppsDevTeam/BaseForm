@@ -29,7 +29,7 @@ abstract class BaseForm extends \Nette\Application\UI\Control
 	 */
 	public function createComponentForm()
 	{
-		return new Form();
+		return new BaseUIForm();
 	}
 
 	/**
