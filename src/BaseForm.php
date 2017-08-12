@@ -69,7 +69,7 @@ abstract class BaseForm extends \Nette\Application\UI\Control
 			$form->getElementPrototype()->class[] = 'adt-form';
 		}
 
-		$this->templateFilename = ($this->templateFilename ? $this->templateFilename : str_replace('.php' ,'.latte', $this->reflection->getFileName()));
+		$this->templateFilename = ($this->templateFilename ? $this->templateFilename : str_replace('.php' ,'.latte', $this->getReflection()->getFileName()));
 
 		if ($this->presenter->isAjax() && $form['_invalidate']->value) {
 			$this->redrawControl('formArea');
@@ -88,7 +88,7 @@ abstract class BaseForm extends \Nette\Application\UI\Control
 			if ($form->onSuccess === NULL) {
 				$form->onSuccess = [];
 			}
-			array_unshift($form->onSuccess, $this->processFormCallback);
+			array_unshift($form->onSuccess, [$this, 'processFormCallback']);
 
 			if($this->ajax) {
 				$form->onError[] = function() {
