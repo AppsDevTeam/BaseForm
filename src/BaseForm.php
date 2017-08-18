@@ -62,7 +62,7 @@ abstract class BaseForm extends \Nette\Application\UI\Control
 		$form->setDefaults($this->defaults);
 
 		if (method_exists($this, 'validateForm')) {
-			$form->onValidate[] = $this->validateFormCallback;
+			$form->onValidate[] = [$this, 'validateFormCallback'];
 		}
 
 		if ($this->ajax) {
