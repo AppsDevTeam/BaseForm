@@ -30,7 +30,7 @@
 	],
 	"autoload": {
 		"psr-4": {
-			"ADT\\": "src/"
+			"ADT\\BaseForm\\": "src/"
 		}
 	}
 }
