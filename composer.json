@@ -22,7 +22,7 @@
 		"kdyby/forms-replicator": "^2.0",
 		"kdyby/doctrine-forms": "^3.5",
 		"voda/date-input": "^2.0",
-		"adt/ajax-select": "dev-nette-3",
+		"adt/ajax-select": "^2.1",
 		"adt/nette-forms-phone-number": "^1.3",
 		"adt/nette-forms-email-strict": "^1.1"
 	},
