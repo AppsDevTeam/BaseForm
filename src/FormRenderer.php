@@ -8,9 +8,18 @@ use Nette\Utils\Html;
 
 class FormRenderer extends DefaultFormRenderer
 {
+	public function renderLabel(Nette\Forms\IControl $control): Html
+	{
+		if ($control->getLabel() && $control->getLabel()->getHtml()) {
+			return parent::renderLabel($control);
+		}
+
+		return Html::el();
+	}
+
 	public function renderControl(Nette\Forms\IControl $control): Html
 	{
-		parent::renderControl($control);
+		$el = parent::renderControl($control);
 
 		// Is this an instance of a RadioList or CheckboxList?
 		if (
@@ -46,9 +55,6 @@ class FormRenderer extends DefaultFormRenderer
 			$_sep->addHtml($control->getControlPart());
 			$_sep->addHtml($control->getLabelPart());
 			$el->addHtml($_sep);
-		}
-		else {
-			$el = $control->getControl();
 		}
 
 		return $el;

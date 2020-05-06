@@ -6,37 +6,41 @@
 {/define}
 
 {define renderContainer}
-	{foreach $container->components as $c}
-		{continueIf $c instanceof \Nette\Forms\Controls\HiddenField}
-		{if $c instanceof \Nette\Forms\Container}
-			{include renderContainer, container => $c}
-		{else}
-			{formPair $c}
-		{/if}
-	{/foreach}
-{/define}
+	{if !$container instanceof \Nette\Forms\ControlGroup && $container->getGroups()}
+		{foreach $container->getGroups() as $_group}
+			<div id="{$_group->getOption('label')}">
+				{include renderGroup form => $container, group => $_group}
+			</div>
+		{/foreach}
+	{else}
+		{foreach $container->getControls() as $c}
+			{continueIf $c instanceof \Nette\Forms\Controls\HiddenField}
 
-{define renderGroup}
-	{foreach $form->getGroup($group)->getControls() as $c}
-		{continueIf $c instanceof \Nette\Forms\Controls\HiddenField}
-		{if $c instanceof \Nette\Forms\Container}
-			{include renderContainer, container => $c}
-		{else}
-			{if count ($form->getGroup($group)->getControls()) === 1}
-				{input $c}
+			{if $c instanceof \Nette\Forms\Container}
+				{include renderContainer, container => $c}
 			{else}
 				{formPair $c}
 			{/if}
-		{/if}
-	{/foreach}
+		{/foreach}
+	{/if}
+{/define}
+
+{define renderGroup}
+	{if is_string($group)}
+		{var $group = $form->getGroup($group)}
+	{/if}
+
+	{include renderContainer container => $group}
 {/define}
 
 {snippetArea formArea}
 	{ifset $customTemplatePath}
 		{includeblock $customTemplatePath}
 	{else}
-		{include errors}
+		{form form}
+			{include errors}
 
-		{control form}
+			{include renderContainer container => $form}
+		{/form}
 	{/ifset}
 {/snippetArea}

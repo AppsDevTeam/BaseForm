@@ -24,7 +24,7 @@ abstract class BaseForm extends Control
 
 	protected $row;
 
-	abstract function init(EntityForm $form);
+	abstract protected function init(EntityForm $form);
 
 	public function __construct()
 	{
@@ -158,6 +158,7 @@ abstract class BaseForm extends Control
 		$renderer->wrappers['label']['container'] = null;
 		$renderer->wrappers['control']['.error'] = 'is-invalid';
 		$renderer->wrappers['control']['errorcontainer'] = 'span class=d-none';
+		$renderer->wrappers['control']['description'] = 'small class=form-text text-muted';
 
 		foreach ($form->getControls() as $control) {
 			$type = $control->getOption('type');
@@ -168,7 +169,7 @@ abstract class BaseForm extends Control
 					$control->getControlPrototype()->addClass(empty($usedPrimary) ? 'btn btn-primary' : 'btn btn-outline-secondary');
 					$usedPrimary = true;
 				}
-				
+
 				if ($control->getControl()->attrs['value']) {
 					$control->getControlPrototype()->setName('button')
 						->addAttributes($control->getControl()->attrs)
