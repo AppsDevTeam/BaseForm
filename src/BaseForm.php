@@ -8,6 +8,8 @@ use Nette\Forms\Controls\Checkbox;
 
 /**
  * @property-read EntityForm $form
+ * @method onBeforeInit($form)
+ * @method onAfterInit($form)
  */
 abstract class BaseForm extends Control
 {
