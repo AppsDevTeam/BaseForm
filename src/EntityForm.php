@@ -13,17 +13,4 @@ use Nette\Application\UI\Form;
 class EntityForm extends Form
 {
 	use \Kdyby\DoctrineForms\EntityForm;
-
-	protected function mapToEntity()
-	{
-		if (property_exists($this->entity, 'rawValue')) {
-			$this->entity->rawValue = true;
-		}
-
-		$this->getEntityMapper()->save($this->entity, $this);
-
-		if (property_exists($this->entity, 'rawValue')) {
-			$this->entity->rawValue = false;
-		}
-	}
 }

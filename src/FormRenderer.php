@@ -8,11 +8,6 @@ use Nette\Utils\Html;
 
 class FormRenderer extends DefaultFormRenderer
 {
-	public function setForm(\Nette\Forms\Form $form)
-	{
-		$this->form = $form;
-	}
-
 	public function renderControl(Nette\Forms\IControl $control): Html
 	{
 		parent::renderControl($control);

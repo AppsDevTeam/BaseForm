@@ -81,15 +81,7 @@ abstract class BaseForm extends Control
 	public function processFormCallback(EntityForm $form)
 	{
 		if ($this->row) {
-			if (property_exists($this->row, 'rawValue')) {
-				$this->row->rawValue = true;
-			}
-
 			$this->processForm($form->getEntity());
-
-			if (property_exists($this->row, 'rawValue')) {
-				$this->row->rawValue = false;
-			}
 		}
 		else {
 			$this->processForm($form->values);
