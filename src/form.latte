@@ -1,0 +1,42 @@
+{define errors}
+	{snippet errors}
+		{var $form = $control['form']}
+		<div n:foreach="$form->getErrors() as $_error" class="mb-3 alert alert-danger js-error">{$_error}</div>
+	{/snippet}
+{/define}
+
+{define renderContainer}
+	{foreach $container->components as $c}
+		{continueIf $c instanceof \Nette\Forms\Controls\HiddenField}
+		{if $c instanceof \Nette\Forms\Container}
+			{include renderContainer, container => $c}
+		{else}
+			{formPair $c}
+		{/if}
+	{/foreach}
+{/define}
+
+{define renderGroup}
+	{foreach $form->getGroup($group)->getControls() as $c}
+		{continueIf $c instanceof \Nette\Forms\Controls\HiddenField}
+		{if $c instanceof \Nette\Forms\Container}
+			{include renderContainer, container => $c}
+		{else}
+			{if count ($form->getGroup($group)->getControls()) === 1}
+				{input $c}
+			{else}
+				{formPair $c}
+			{/if}
+		{/if}
+	{/foreach}
+{/define}
+
+{snippetArea formArea}
+	{ifset $customTemplatePath}
+		{includeblock $customTemplatePath}
+	{else}
+		{include errors}
+
+		{control form}
+	{/ifset}
+{/snippetArea}

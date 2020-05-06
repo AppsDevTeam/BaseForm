@@ -1,131 +1,202 @@
 <?php
 
-namespace ADT;
+namespace Adt\BaseForm;
 
-use \Nette\Application\UI\Form;
+use Nette\Application\UI\Control;
+use Nette\Application\UI\Presenter;
+use Nette\Forms\Controls\Checkbox;
 
 /**
- * @property-read \Nette\Application\UI\Form $form
- * @property-read \App\Presenters\BasePresenter $presenter
+ * @property-read EntityForm $form
  */
-abstract class BaseForm extends \Nette\Application\UI\Control
+abstract class BaseForm extends Control
 {
 	public $templateFilename = NULL;
+	public $isAjax = true;
 
-	protected $ajax = FALSE;
+	/** @var callable[] */
+	public $onBeforeInit = [];
 
-	protected $defaults = array();
+	/** @var callable[] */
+	public $onAfterInit = [];
 
-	abstract function init(Form $form);
+	protected $row;
 
-	abstract function processForm($values);
+	abstract function init(EntityForm $form);
 
-	/**
-	 * Pokud chceš nastavit method nebo cokoliv jiného, přičemž ještě nesmí existovat
-	 * žádné prvky, poděd tuto funkci, přes parent::createComponentForm() získej form
-	 * a nastav mu vše co potřebuješ.
-	 *
-	 * @return Form
-	 */
-	public function createComponentForm()
+	public function __construct()
 	{
-		return new BaseUIForm();
+		$this->monitor(Presenter::class, function($presenter) {
+			/** can't be named "attached" because of Nette 2.4 compatibility */
+			$this->attach($presenter);
+		});
+	}
+
+	protected function attach(Presenter $presenter): void
+	{
+		$form = $this->getForm();
+
+		$form->setTranslator($presenter->translator);
+
+		if (method_exists($this, 'validateForm')) {
+			/** @link BaseForm::validateFormCallback() */
+			$form->onValidate[] = [$this, 'validateFormCallback'];
+		}
+
+		/** @link BaseForm::processFormCallback() */
+		if (method_exists($this, 'processForm')) {
+			$form->onSuccess[] = [$this, 'processFormCallback'];
+		}
+
+		/** @link BaseForm::errorFormCallback() */
+		$form->onError[] = [$this, 'errorFormCallback'];
+
+		$this->onBeforeInit($form);
+
+		$this->init($form);
+
+		if ($this->row) {
+			$this->bindEntity();
+		}
+
+		$this->onAfterInit($form);
+
+		if ($form->isSubmitted() && $form->isSubmitted()->getValidationScope() === []) {
+			$form->onValidate = null;
+		}
+	}
+
+	public function validateFormCallback(EntityForm $form)
+	{
+		if ($this->row) {
+			$this->validateForm($form->getEntity());
+		}
+		else {
+			$this->validateForm($form->values);
+		}
+	}
+
+	public function processFormCallback(EntityForm $form)
+	{
+		if ($this->row) {
+			if (property_exists($this->row, 'rawValue')) {
+				$this->row->rawValue = true;
+			}
+
+			$this->processForm($form->getEntity());
+
+			if (property_exists($this->row, 'rawValue')) {
+				$this->row->rawValue = false;
+			}
+		}
+		else {
+			$this->processForm($form->values);
+		}
+	}
+
+	public function errorFormCallback(EntityForm $form)
+	{
+		if ($this->presenter->isAjax()) {
+			$this->redrawControl('errors');
+		}
+	}
+
+	public function render()
+	{
+		$this->template->setFile(__DIR__ . DIRECTORY_SEPARATOR . 'form.latte');
+
+		$customTemplatePath = (
+		(!empty($this->templateFilename))
+			? $this->templateFilename
+			: str_replace('.php', '.latte', $this->getReflection()->getFileName())
+		);
+
+		if (file_exists($customTemplatePath)) {
+			$this->template->customTemplatePath = $customTemplatePath;
+		}
+
+		$this->getForm()->setRenderer(new FormRenderer());
+
+		if ($this->isAjax) {
+			$this->getForm()->getElementPrototype()->class[] = 'ajax';
+		}
+
+		$this->template->render();
+	}
+
+	public function setRow($row)
+	{
+		$this->row = $row;
+		return $this;
 	}
 
 	/**
-	 * @return \Nette\Application\UI\Form
+	 * @return EntityForm
 	 */
 	public function getForm()
 	{
 		return $this['form'];
 	}
 
-	public function setDefaults($defaults)
+	protected function createComponentForm()
 	{
-		$this->defaults = $defaults;
+		$form = new EntityForm();
+		$form->onRender[] = [$this, 'bootstrap4'];
+		return $form;
 	}
 
-	protected function attached($presenter)
+	protected function bindEntity()
 	{
-		parent::attached($presenter);
+		$this->getForm()->bindEntity($this->row);
+	}
 
-		$form = $this->getForm();
+	protected function _()
+	{
+		return call_user_func_array($this->getForm()->getTranslator()->translate, func_get_args());
+	}
 
-		$form->addHidden('_invalidate');
+	public function bootstrap4(EntityForm $form): void
+	{
+		$renderer = $form->getRenderer();
+		$renderer->wrappers['controls']['container'] = null;
+		$renderer->wrappers['group']['container'] = null;
+		$renderer->wrappers['pair']['container'] = 'div class=form-group';
+		$renderer->wrappers['label']['container'] = null;
+		$renderer->wrappers['control']['.error'] = 'is-invalid';
+		$renderer->wrappers['control']['errorcontainer'] = 'span class=d-none';
 
-		if(isset($presenter->translator)) {
-			$form->setTranslator($presenter->translator);
-		}
-
-		$this->init($form);
-
-		$form->setDefaults($this->defaults);
-
-		if (method_exists($this, 'validateForm')) {
-			$form->onValidate[] = [$this, 'validateFormCallback'];
-		}
-
-		if ($this->ajax) {
-			$form->getElementPrototype()->class[] = 'adt-form';
-		}
-
-		$this->templateFilename = ($this->templateFilename ? $this->templateFilename : str_replace('.php' ,'.latte', $this->getReflection()->getFileName()));
-
-		if ($this->presenter->isAjax() && $form['_invalidate']->value) {
-			$this->redrawControl('formArea');
-			if (file_exists($this->templateFilename)) {
-				foreach(explode(' ', $form['_invalidate']->value) as $snippetName) {
-					$this->redrawControl($snippetName);
+		foreach ($form->getControls() as $control) {
+			$type = $control->getOption('type');
+			if ($type === 'button') {
+				if ($control->getValidationScope() === []) {
+					$control->getControlPrototype()->addClass('btn btn-outline-secondary');
+				} else {
+					$control->getControlPrototype()->addClass(empty($usedPrimary) ? 'btn btn-primary' : 'btn btn-outline-secondary');
+					$usedPrimary = true;
 				}
-			} else {
-				$this->redrawControl('controls');
-				foreach(explode(' ', $form['_invalidate']->value) as $snippetName) {
-					$this->redrawControl('controls-' . $snippetName);
+				
+				if ($control->getControl()->attrs['value']) {
+					$control->getControlPrototype()->setName('button')
+						->addAttributes($control->getControl()->attrs)
+						->addHtml('<span class="js-spinner spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>')
+						->addHtml($control->getControl()->attrs['value']);
 				}
-			}
-		}	else {
 
-			if ($form->onSuccess === NULL) {
-				$form->onSuccess = [];
-			}
-			array_unshift($form->onSuccess, [$this, 'processFormCallback']);
+			} elseif (in_array($type, ['text', 'textarea', 'select'], true)) {
+				$control->getControlPrototype()->addClass('form-control');
 
-			if($this->ajax) {
-				$form->onError[] = function() {
-					$this->redrawControl();
-				};
-			}
-		}
+			} elseif ($type === 'file') {
+				$control->getControlPrototype()->addClass('form-control-file');
 
-		$this->template->renderer = $this->form->renderer;
-	}
-
-	public function processFormCallback(Form $form)
-	{
-		$values = $form->values;
-		foreach ($values as $key => $value) {
-			if ($form[$key] instanceof \Nette\Forms\Controls\Checkbox && $value === FALSE) {
-				$values[$key] = 0;
-			} elseif ($value === '' || $value === ':null') {
-				$values[$key] = NULL;
+			} elseif (in_array($type, ['checkbox', 'radio'], true)) {
+				if ($control instanceof Checkbox) {
+					$control->getLabelPrototype()->addClass('form-check-label');
+				} else {
+					$control->getItemLabelPrototype()->addClass('form-check-label');
+				}
+				$control->getControlPrototype()->addClass('form-check-input');
+				$control->getSeparatorPrototype()->setName('div')->addClass('form-check');
 			}
 		}
-
-		$this->processForm($values);
-	}
-
-	public function validateFormCallback(Form $form)
-	{
-		$this->validateForm($form->values);
-	}
-
-	public function render()
-	{
-		if (!file_exists($this->templateFilename)) {
-			$this->templateFilename = __DIR__ . DIRECTORY_SEPARATOR . '@baseForm.latte';
-		}
-
-		$this->template->setFile($this->templateFilename);
-		$this->template->render();
 	}
 }

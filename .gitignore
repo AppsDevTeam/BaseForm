@@ -1,0 +1,6 @@
+/.composer
+/bin
+/vendor
+/composer.lock
+
+/.idea
