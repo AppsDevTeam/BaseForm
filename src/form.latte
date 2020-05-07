@@ -1,8 +1,8 @@
 {define errors}
-	{snippet errors}
+	<div n:snippet="errors" class="js-errors">
 		{var $form = $control['form']}
-		<div n:foreach="$form->getErrors() as $_error" class="mb-3 alert alert-danger js-error">{$_error}</div>
-	{/snippet}
+		<div n:foreach="$form->getOwnErrors() as $_error" class="mb-3 alert alert-danger js-error">{$_error}</div>
+	</div>
 {/define}
 
 {define renderContainer}
