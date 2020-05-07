@@ -15,6 +15,7 @@
 	{else}
 		{foreach $container->getControls() as $c}
 			{continueIf $c instanceof \Nette\Forms\Controls\HiddenField}
+			{continueIf $c->getOption('rendered')}
 
 			{if $c instanceof \Nette\Forms\Container}
 				{include renderContainer, container => $c}
@@ -30,7 +31,9 @@
 		{var $group = $form->getGroup($group)}
 	{/if}
 
-	{include renderContainer container => $group}
+	<div id="{$group->getOption('label')}">
+		{include renderContainer container => $group}
+	</div>
 {/define}
 
 {snippetArea formArea}

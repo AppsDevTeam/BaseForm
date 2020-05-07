@@ -90,6 +90,14 @@ abstract class BaseForm extends Control
 
 	public function errorFormCallback(EntityForm $form)
 	{
+		$errors = [];
+		foreach ($form->getControls() as $control) {
+			if ($control->getErrors()) {
+				$errors[$control->getHtmlId()] = $control->getErrors();
+			}
+		}
+		$this->presenter->payload->errors = $errors;
+
 		if ($this->presenter->isAjax()) {
 			$this->redrawControl('errors');
 		}
@@ -177,9 +185,6 @@ abstract class BaseForm extends Control
 						->addHtml($control->getControl()->attrs['value']);
 				}
 
-			} elseif (in_array($type, ['text', 'textarea', 'select'], true)) {
-				$control->getControlPrototype()->addClass('form-control');
-
 			} elseif ($type === 'file') {
 				$control->getControlPrototype()->addClass('form-control-file');
 
@@ -191,6 +196,9 @@ abstract class BaseForm extends Control
 				}
 				$control->getControlPrototype()->addClass('form-check-input');
 				$control->getSeparatorPrototype()->setName('div')->addClass('form-check');
+
+			} else {
+				$control->getControlPrototype()->addClass('form-control');
 			}
 		}
 	}
