@@ -2,6 +2,7 @@
 
 namespace ADT\BaseForm;
 
+use ADT\Forms\Controls\PhoneNumberInput;
 use Nette;
 use Nette\Forms\Rendering\DefaultFormRenderer;
 use Nette\Utils\Html;
@@ -55,6 +56,12 @@ class FormRenderer extends DefaultFormRenderer
 			$_sep->addHtml($control->getControlPart());
 			$_sep->addHtml($control->getLabelPart());
 			$el->addHtml($_sep);
+		}
+		elseif ($control instanceof PhoneNumberInput) {
+			$el = Html::el('div')
+				->setAttribute('class', 'form-row')
+				->addHtml('<div class="col-4">' . $control->getControlPart(PhoneNumberInput::CONTROL_COUNTRY_CODE)->addClass('form-control') . '</div>')
+				->addHtml('<div class="col-8">' . $control->getControlPart(PhoneNumberInput::CONTROL_NATIONAL_NUMBER)->addClass('form-control') . "</div>");
 		}
 
 		return $el;
