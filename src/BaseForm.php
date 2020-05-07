@@ -121,6 +121,7 @@ abstract class BaseForm extends Control
 
 		if ($this->isAjax) {
 			$this->getForm()->getElementPrototype()->class[] = 'ajax';
+			$this->redrawControl('formArea');
 		}
 
 		$this->template->render();
