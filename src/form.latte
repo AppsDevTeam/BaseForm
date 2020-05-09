@@ -8,9 +8,9 @@
 {define renderContainer}
 	{if !$container instanceof \Nette\Forms\ControlGroup && $container->getGroups()}
 		{foreach $container->getGroups() as $_group}
-			<div id="{$_group->getOption('label')}">
-				{include renderGroup form => $container, group => $_group}
-			</div>
+			{continueIf !$_group->getOption('visual')}
+
+			{include renderGroup form => $container, group => $_group}
 		{/foreach}
 	{else}
 		{foreach $container->getControls() as $c}
@@ -31,9 +31,11 @@
 		{var $group = $form->getGroup($group)}
 	{/if}
 
-	<div id="{$group->getOption('label')}">
+	<div n:tag-if="$group->getOption('label')" n:attr="id => $group->getOption('label'), hidden => $group->getOption('label') && isset ($form->getToggles()[$group->getOption('label')]) && !$form->getToggles()[$group->getOption('label')]">
 		{include renderContainer container => $group}
 	</div>
+
+	{php $group->setOption('visual', false)}
 {/define}
 
 {snippetArea formArea}
