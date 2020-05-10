@@ -38,6 +38,8 @@ abstract class BaseForm extends Control
 	{
 		$form = $this->getForm();
 
+		$form->setRenderer(new FormRenderer($form));
+
 		$form->setTranslator($presenter->translator);
 
 		if (method_exists($this, 'validateForm')) {
@@ -90,16 +92,21 @@ abstract class BaseForm extends Control
 
 	public function errorFormCallback(EntityForm $form)
 	{
-		$errors = [];
-		foreach ($form->getControls() as $control) {
-			if ($control->getErrors()) {
-				$errors[$control->getHtmlId()] = $control->getErrors();
-			}
-		}
-		$this->presenter->payload->errors = $errors;
-
 		if ($this->presenter->isAjax()) {
-			$this->redrawControl('errors');
+			$renderer = $form->getRenderer();
+			$this->bootstrap4($form);
+
+			$renderer->wrappers['error']['container'] = null;
+			$this->presenter->payload->snippets['snippet-' . $form->getElementPrototype()->getAttribute('id') . '-errors'] = $renderer->renderErrors();
+
+			$renderer->wrappers['control']['errorcontainer'] = null;
+			foreach ($form->getControls() as $control) {
+				if ($control->getErrors()) {
+					$this->presenter->payload->snippets['snippet-' . $control->getHtmlId() . '-errors'] = $renderer->doRenderErrors($control);
+				}
+			}
+
+			$this->presenter->sendPayload();
 		}
 	}
 
@@ -116,8 +123,6 @@ abstract class BaseForm extends Control
 		if (file_exists($customTemplatePath)) {
 			$this->template->customTemplatePath = $customTemplatePath;
 		}
-
-		$this->getForm()->setRenderer(new FormRenderer());
 
 		if ($this->isAjax) {
 			$this->getForm()->getElementPrototype()->class[] = 'ajax';
@@ -164,12 +169,15 @@ abstract class BaseForm extends Control
 	public function bootstrap4(EntityForm $form): void
 	{
 		$renderer = $form->getRenderer();
+		$renderer->wrappers['error']['container'] = 'div';
+		$renderer->wrappers['error']['item'] = 'div class="alert alert-danger"';
 		$renderer->wrappers['controls']['container'] = null;
 		$renderer->wrappers['group']['container'] = null;
 		$renderer->wrappers['pair']['container'] = 'div class=form-group';
 		$renderer->wrappers['label']['container'] = null;
 		$renderer->wrappers['control']['.error'] = 'is-invalid';
-		$renderer->wrappers['control']['errorcontainer'] = 'span class=d-none';
+		$renderer->wrappers['control']['errorcontainer'] = 'div class=invalid-feedback';
+		$renderer->wrappers['control']['erroritem'] = 'div';
 		$renderer->wrappers['control']['description'] = 'small class=form-text text-muted';
 
 		foreach ($form->getControls() as $control) {
