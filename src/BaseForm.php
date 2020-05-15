@@ -32,15 +32,10 @@ abstract class BaseForm extends Control
 			/** can't be named "attached" because of Nette 2.4 compatibility */
 			$this->attach($presenter);
 		});
-	}
 
-	protected function attach(Presenter $presenter): void
-	{
+		// we have to register callbacks here to ensure execution in the right order
+		// when another callback is added in the presenter
 		$form = $this->getForm();
-
-		$form->setRenderer(new FormRenderer($form));
-
-		$form->setTranslator($presenter->translator);
 
 		if (method_exists($this, 'validateForm')) {
 			/** @link BaseForm::validateFormCallback() */
@@ -54,6 +49,15 @@ abstract class BaseForm extends Control
 
 		/** @link BaseForm::errorFormCallback() */
 		$form->onError[] = [$this, 'errorFormCallback'];
+	}
+
+	protected function attach(Presenter $presenter): void
+	{
+		$form = $this->getForm();
+
+		$form->setRenderer(new FormRenderer($form));
+
+		$form->setTranslator($presenter->translator);
 
 		$this->onBeforeInit($form);
 
