@@ -179,6 +179,7 @@ abstract class BaseForm extends Control
 		$renderer->wrappers['group']['container'] = null;
 		$renderer->wrappers['pair']['container'] = 'div class=form-group';
 		$renderer->wrappers['label']['container'] = null;
+		$renderer->wrappers['control']['container'] = null;
 		$renderer->wrappers['control']['.error'] = 'is-invalid';
 		$renderer->wrappers['control']['errorcontainer'] = 'div class=invalid-feedback';
 		$renderer->wrappers['control']['erroritem'] = 'div';
