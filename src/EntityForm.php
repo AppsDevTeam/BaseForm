@@ -2,13 +2,19 @@
 
 namespace ADT\BaseForm;
 
+use ADT\EmailStrictInput;
+use ADT\Forms\Controls\CurrencyInput;
+use ADT\Forms\Controls\PhoneNumberInput;
+use Kdyby\Replicator\Container;
 use Nette\Application\UI\Form;
+use Vodacek\Forms\Controls\DateInput;
 
 /**
- * @method addDynamic($name, $factory, $createDefault = 0, $forceDefault = FALSE)
- * @method addDate($name, $label, $type = 'datetime-local')
- * @method addPhoneNumber($name, $label = null)
- * @method addEmailStrict($name, $label = null, $errorMessage = 'Invalid email address.')
+ * @method Container addDynamic($name, $factory, $createDefault = 0, $forceDefault = FALSE)
+ * @method DateInput addDate($name, $label, $type = 'datetime-local')
+ * @method PhoneNumberInput addPhoneNumber($name, $label = null)
+ * @method EmailStrictInput addEmailStrict($name, $label = null, $errorMessage = 'Invalid email address.')
+ * @method CurrencyInput addCurrency($name, $label = null, $currency = null)
  */
 class EntityForm extends Form
 {
