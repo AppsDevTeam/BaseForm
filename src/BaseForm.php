@@ -69,8 +69,13 @@ abstract class BaseForm extends Control
 
 		$this->onAfterInit($form);
 
-		if ($form->isSubmitted() && $form->isSubmitted()->getValidationScope() === []) {
-			$form->onValidate = null;
+		if ($form->isSubmitted()) {
+			if (is_bool($form->isSubmitted())) {
+				$form->setSubmittedBy(null);
+			}
+			elseif ($form->isSubmitted()->getValidationScope() === []) {
+				$form->onValidate = null;
+			}
 		}
 	}
 
