@@ -73,7 +73,7 @@ abstract class BaseForm extends Control
 			if (is_bool($form->isSubmitted())) {
 				$form->setSubmittedBy(null);
 			}
-			elseif ($form->isSubmitted()->getValidationScope() === []) {
+			elseif ($form->isSubmitted()->getValidationScope() !== null) {
 				$form->onValidate = null;
 			}
 		}
@@ -193,7 +193,7 @@ abstract class BaseForm extends Control
 		foreach ($form->getControls() as $control) {
 			$type = $control->getOption('type');
 			if ($type === 'button') {
-				if ($control->getValidationScope() === []) {
+				if ($control->getValidationScope() !== null) {
 					$control->getControlPrototype()->addClass('btn btn-outline-secondary');
 				} else {
 					$control->getControlPrototype()->addClass(empty($usedPrimary) ? 'btn btn-primary' : 'btn btn-outline-secondary');
