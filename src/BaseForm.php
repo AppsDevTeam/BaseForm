@@ -172,7 +172,7 @@ abstract class BaseForm extends Control
 
 	protected function _()
 	{
-		return call_user_func_array($this->getForm()->getTranslator()->translate, func_get_args());
+		return call_user_func_array([$this->getForm()->getTranslator(), 'translate'], func_get_args());
 	}
 
 	public function bootstrap4(EntityForm $form): void
