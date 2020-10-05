@@ -144,9 +144,15 @@ abstract class BaseForm extends Control
 		$this->template->render();
 	}
 
-	public function setRow($row)
+	public function setRow($row): self
 	{
 		$this->row = $row;
+		return $this;
+	}
+
+	public function setOnSuccess(callable $onSuccess): self
+	{
+		$this['form']->onSuccess[] = $onSuccess;
 		return $this;
 	}
 
