@@ -58,6 +58,7 @@ abstract class BaseForm extends Control
 
 		$form->setRenderer(new FormRenderer($form));
 
+		bd ($presenter->translator);
 		$form->setTranslator($presenter->translator);
 
 		$this->onBeforeInit($form);
@@ -145,9 +146,15 @@ abstract class BaseForm extends Control
 		$this->template->render();
 	}
 
-	public function setRow($row)
+	public function setRow($row): self
 	{
 		$this->row = $row;
+		return $this;
+	}
+
+	public function setOnSuccess(callable $onSuccess): self
+	{
+		$this['form']->onSuccess[] = $onSuccess;
 		return $this;
 	}
 
@@ -173,7 +180,7 @@ abstract class BaseForm extends Control
 
 	protected function _()
 	{
-		return call_user_func_array($this->getForm()->getTranslator()->translate, func_get_args());
+		return call_user_func_array([$this->getForm()->getTranslator(), 'translate'], func_get_args());
 	}
 
 	public function bootstrap4(EntityForm $form): void
@@ -223,7 +230,7 @@ abstract class BaseForm extends Control
 			} elseif ($control instanceof PhoneNumberInput) {
 				$control->getControlPrototype(PhoneNumberInput::CONTROL_COUNTRY_CODE)->addClass('form-control');
 				$control->getControlPrototype(PhoneNumberInput::CONTROL_NATIONAL_NUMBER)->addClass('form-control');
-
+			
 			} else {
 				$control->getControlPrototype()->addClass('form-control');
 			}
