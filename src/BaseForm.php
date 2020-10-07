@@ -2,6 +2,7 @@
 
 namespace ADT\BaseForm;
 
+use ADT\Forms\Controls\PhoneNumberInput;
 use Nette\Application\UI\Control;
 use Nette\Application\UI\Presenter;
 use Nette\Forms\Controls\Checkbox;
@@ -144,15 +145,9 @@ abstract class BaseForm extends Control
 		$this->template->render();
 	}
 
-	public function setRow($row): self
+	public function setRow($row)
 	{
 		$this->row = $row;
-		return $this;
-	}
-
-	public function setOnSuccess(callable $onSuccess): self
-	{
-		$this['form']->onSuccess[] = $onSuccess;
 		return $this;
 	}
 
@@ -178,7 +173,7 @@ abstract class BaseForm extends Control
 
 	protected function _()
 	{
-		return call_user_func_array([$this->getForm()->getTranslator(), 'translate'], func_get_args());
+		return call_user_func_array($this->getForm()->getTranslator()->translate, func_get_args());
 	}
 
 	public function bootstrap4(EntityForm $form): void
@@ -224,6 +219,10 @@ abstract class BaseForm extends Control
 				}
 				$control->getControlPrototype()->addClass('form-check-input');
 				$control->getSeparatorPrototype()->setName('div')->addClass('form-check');
+
+			} elseif ($control instanceof PhoneNumberInput) {
+				$control->getControlPrototype(PhoneNumberInput::CONTROL_COUNTRY_CODE)->addClass('form-control');
+				$control->getControlPrototype(PhoneNumberInput::CONTROL_NATIONAL_NUMBER)->addClass('form-control');
 
 			} else {
 				$control->getControlPrototype()->addClass('form-control');
