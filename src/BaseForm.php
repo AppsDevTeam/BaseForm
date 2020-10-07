@@ -6,6 +6,7 @@ use ADT\Forms\Controls\PhoneNumberInput;
 use Nette\Application\UI\Control;
 use Nette\Application\UI\Presenter;
 use Nette\Forms\Controls\Checkbox;
+use Nette\Forms\Form;
 
 /**
  * @property-read EntityForm $form
@@ -182,7 +183,7 @@ abstract class BaseForm extends Control
 		return call_user_func_array([$this->getForm()->getTranslator(), 'translate'], func_get_args());
 	}
 
-	public static function bootstrap4(EntityForm $form): void
+	public static function bootstrap4(Form $form): void
 	{
 		$renderer = $form->getRenderer();
 		$renderer->wrappers['error']['container'] = 'div';
