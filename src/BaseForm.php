@@ -58,7 +58,6 @@ abstract class BaseForm extends Control
 
 		$form->setRenderer(new FormRenderer($form));
 
-		bd ($presenter->translator);
 		$form->setTranslator($presenter->translator);
 
 		$this->onBeforeInit($form);
@@ -230,7 +229,7 @@ abstract class BaseForm extends Control
 			} elseif ($control instanceof PhoneNumberInput) {
 				$control->getControlPrototype(PhoneNumberInput::CONTROL_COUNTRY_CODE)->addClass('form-control');
 				$control->getControlPrototype(PhoneNumberInput::CONTROL_NATIONAL_NUMBER)->addClass('form-control');
-			
+
 			} else {
 				$control->getControlPrototype()->addClass('form-control');
 			}
