@@ -152,6 +152,18 @@ abstract class BaseForm extends Control
 		return $this;
 	}
 
+	public function setOnBeforeInit(callable $onBeforeInit): self
+	{
+		$this->onBeforeInit[] = $onBeforeInit;
+		return $this;
+	}
+
+	public function setOnAfterInit(callable $onAfterInit): self
+	{
+		$this->onAfterInit[] = $onAfterInit;
+		return $this;
+	}
+
 	public function setOnSuccess(callable $onSuccess): self
 	{
 		$this['form']->onSuccess[] = $onSuccess;
