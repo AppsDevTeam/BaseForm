@@ -59,7 +59,9 @@ abstract class BaseForm extends Control
 
 		$form->setRenderer(new FormRenderer($form));
 
-		$form->setTranslator($presenter->translator);
+		if (isset($presenter->translator)) {
+			$form->setTranslator($presenter->translator);
+		}
 
 		$this->onBeforeInit($form);
 
