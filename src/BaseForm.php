@@ -7,7 +7,6 @@ use Nette\Application\UI\Control;
 use Nette\Application\UI\Presenter;
 use Nette\Forms\Controls\Checkbox;
 use Nette\Forms\Form;
-use Nette\Localization\ITranslator;
 
 /**
  * @property-read EntityForm $form
