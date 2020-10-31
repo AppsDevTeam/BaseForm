@@ -57,12 +57,6 @@ abstract class BaseForm extends Control
 	{
 		$form = $this->getForm();
 
-		$form->setRenderer(new FormRenderer($form));
-
-		if (isset($presenter->translator)) {
-			$form->setTranslator($presenter->translator);
-		}
-
 		$this->onBeforeInit($form);
 
 		$this->init($form);
@@ -125,6 +119,10 @@ abstract class BaseForm extends Control
 
 	public function render()
 	{
+		$form = $this->getForm();
+		
+		$form->setRenderer(new FormRenderer($form));
+		
 		$this->template->setFile(__DIR__ . DIRECTORY_SEPARATOR . 'form.latte');
 
 		$customTemplatePath = (
@@ -138,7 +136,7 @@ abstract class BaseForm extends Control
 		}
 
 		if ($this->isAjax) {
-			$this->getForm()->getElementPrototype()->class[] = 'ajax';
+			$form->getElementPrototype()->class[] = 'ajax';
 		}
 
 		if ($this->presenter->isAjax()) {
