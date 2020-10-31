@@ -7,6 +7,7 @@ use Nette\Application\UI\Control;
 use Nette\Application\UI\Presenter;
 use Nette\Forms\Controls\Checkbox;
 use Nette\Forms\Form;
+use Nette\Localization\ITranslator;
 
 /**
  * @property-read EntityForm $form
@@ -56,12 +57,6 @@ abstract class BaseForm extends Control
 	protected function attach(Presenter $presenter): void
 	{
 		$form = $this->getForm();
-
-		$form->setRenderer(new FormRenderer($form));
-
-		if (isset($presenter->translator)) {
-			$form->setTranslator($presenter->translator);
-		}
 
 		$this->onBeforeInit($form);
 
@@ -125,6 +120,10 @@ abstract class BaseForm extends Control
 
 	public function render()
 	{
+		$form = $this->getForm();
+		
+		$form->setRenderer(new FormRenderer($form));
+		
 		$this->template->setFile(__DIR__ . DIRECTORY_SEPARATOR . 'form.latte');
 
 		$customTemplatePath = (
@@ -138,7 +137,7 @@ abstract class BaseForm extends Control
 		}
 
 		if ($this->isAjax) {
-			$this->getForm()->getElementPrototype()->class[] = 'ajax';
+			$form->getElementPrototype()->class[] = 'ajax';
 		}
 
 		if ($this->presenter->isAjax()) {
