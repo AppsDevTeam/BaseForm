@@ -57,6 +57,8 @@ abstract class BaseForm extends Control
 	{
 		$form = $this->getForm();
 
+		$form->onRender[] = [$this, 'bootstrap4'];
+
 		$this->onBeforeInit($form);
 
 		$this->init($form);
@@ -119,10 +121,6 @@ abstract class BaseForm extends Control
 
 	public function render()
 	{
-		$form = $this->getForm();
-		
-		$form->setRenderer(new FormRenderer($form));
-		
 		$this->template->setFile(__DIR__ . DIRECTORY_SEPARATOR . 'form.latte');
 
 		$customTemplatePath = (
@@ -136,7 +134,7 @@ abstract class BaseForm extends Control
 		}
 
 		if ($this->isAjax) {
-			$form->getElementPrototype()->class[] = 'ajax';
+			$this->getForm()->getElementPrototype()->class[] = 'ajax';
 		}
 
 		if ($this->presenter->isAjax()) {
@@ -180,9 +178,7 @@ abstract class BaseForm extends Control
 
 	protected function createComponentForm()
 	{
-		$form = new EntityForm();
-		$form->onRender[] = [$this, 'bootstrap4'];
-		return $form;
+		return new EntityForm();
 	}
 
 	protected function bindEntity()

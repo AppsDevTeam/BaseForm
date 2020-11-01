@@ -7,6 +7,7 @@ use ADT\Forms\Controls\CurrencyInput;
 use ADT\Forms\Controls\PhoneNumberInput;
 use Kdyby\Replicator\Container;
 use Nette\Application\UI\Form;
+use Nette\Forms\IFormRenderer;
 use Vodacek\Forms\Controls\DateInput;
 
 /**
@@ -19,4 +20,17 @@ use Vodacek\Forms\Controls\DateInput;
 class EntityForm extends Form
 {
 	use \Kdyby\DoctrineForms\EntityForm;
+
+	protected ?IFormRenderer $renderer = null;
+
+	/**
+	 * Returns form renderer.
+	 */
+	public function getRenderer(): IFormRenderer
+	{
+		if ($this->renderer === null) {
+			$this->renderer = new FormRenderer($this);
+		}
+		return $this->renderer;
+	}
 }
