@@ -3,13 +3,10 @@
 namespace ADT\BaseForm;
 
 use ADT\Forms\Controls\PhoneNumberInput;
-use App\Components\Forms\Base\IEntityFormFactory;
 use Nette\Application\UI\Control;
 use Nette\Application\UI\Presenter;
-use Nette\DI\Container;
 use Nette\Forms\Controls\Checkbox;
 use Nette\Forms\Form;
-use Nette\Forms\IFormRenderer;
 
 /**
  * @property-read EntityForm $form
