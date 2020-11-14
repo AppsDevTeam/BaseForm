@@ -58,13 +58,17 @@ abstract class BaseForm extends Control
 		$form = $this->getForm();
 
 		$form->onRender[] = [$this, 'bootstrap4'];
+		
+		if ($this->row) {
+			$form->setEntity($this->row);
+		}
 
 		$this->onBeforeInit($form);
 
 		$this->init($form);
 
 		if ($this->row) {
-			$this->bindEntity();
+			$this->mapToForm();
 		}
 
 		$this->onAfterInit($form);
@@ -181,9 +185,9 @@ abstract class BaseForm extends Control
 		return new EntityForm();
 	}
 
-	protected function bindEntity()
+	protected function mapToForm()
 	{
-		$this->getForm()->bindEntity($this->row);
+		$this->getForm()->mapToForm();
 	}
 
 	protected function _()
