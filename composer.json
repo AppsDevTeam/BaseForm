@@ -2,9 +2,8 @@
 	"name": "adt/base-form",
 	"type": "library",
 	"description": "Nette abstract form class with snippet support",
-	"keywords": ["nette", "kdyby", "appsdevteam", "forms"],
 	"homepage": "https://www.appsdevteam.com",
-	"license": ["BSD-3-Clause", "GPL-2.0", "GPL-3.0"],
+	"license": ["MIT"],
 	"authors": [
 		{
 			"name": "Apps Dev Team",
@@ -12,22 +11,11 @@
 			"email": "hello@appsdevteam.com"
 		}
 	],
-	"support": {
-		"email": "hello@appsdevteam.com",
-		"issues": "https://github.com/AppsDevTeam/BaseForm/issues"
-	},
 	"require": {
-		"php": ">=7.1",
-		"nette/forms": "^2.4|^3.0",
-		"kdyby/doctrine-forms": "^3.5"
+		"php": ">=7.4",
+		"nette/forms": "^3.0",
+		"adt/doctrine-forms": "^4.0"
 	},
-	"repositories": [
-		{
-			"type": "git",
-			"url": "https://github.com/AppsDevTeam/DoctrineForms.git",
-			"no-api": true
-		}
-	],
 	"autoload": {
 		"psr-4": {
 			"ADT\\BaseForm\\": "src/"
