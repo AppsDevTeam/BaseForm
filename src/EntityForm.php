@@ -19,7 +19,7 @@ use Vodacek\Forms\Controls\DateInput;
  */
 class EntityForm extends Form
 {
-	use \Kdyby\DoctrineForms\EntityForm;
+	use \ADT\DoctrineForms\EntityForm;
 
 	protected ?IFormRenderer $renderer = null;
 
