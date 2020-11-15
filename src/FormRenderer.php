@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ADT\BaseForm;
 
 use ADT\Forms\Controls\PhoneNumberInput;
@@ -62,7 +64,7 @@ class FormRenderer extends DefaultFormRenderer
 			$el->class($this->getValue('control .error'), $control->hasErrors());
 		}
 
-		$el = $body->setHtml($el . $description . $this->doRenderErrors($control));
+		$el = $body->setHtml($el . $description . $this->renderErrors($control));
 
 		// Is this an instance of a RadioList or CheckboxList?
 		if (
@@ -103,7 +105,7 @@ class FormRenderer extends DefaultFormRenderer
 			$el = Html::el('div')
 				->setAttribute('class', 'form-row')
 				->addHtml('<div class="col-5">' . $control->getControlPart(PhoneNumberInput::CONTROL_COUNTRY_CODE)->addClass('form-control') . '</div>')
-				->addHtml('<div class="col-7">' . $control->getControlPart(PhoneNumberInput::CONTROL_NATIONAL_NUMBER)->addClass('form-control') . $description . $this->doRenderErrors($control) . '</div>');
+				->addHtml('<div class="col-7">' . $control->getControlPart(PhoneNumberInput::CONTROL_NATIONAL_NUMBER)->addClass('form-control') . $description . $this->renderErrors($control) . '</div>');
 		}
 
 		return $el;
@@ -112,26 +114,22 @@ class FormRenderer extends DefaultFormRenderer
 	/**
 	 * Renders validation errors (per form or per control).
 	 */
-	public function renderErrors(Nette\Forms\IControl $control = null, $own = true): string
+	public function renderErrors(Nette\Forms\IControl $control = null, bool $own = true): string
 	{
 		$errors = $control
 			? $control->getErrors()
 			: ($own ? $this->form->getOwnErrors() : $this->form->getErrors());
-		return $this->doRenderErrors($control, $errors);
+		return $this->doRenderErrors($errors, (bool) $control, $control ? $control->getHtmlId() : $this->form->getElementPrototype()->getId());
 	}
 
-	public function doRenderErrors(Nette\Forms\IControl $control = null, $errors = []): string
+	public function doRenderErrors(array $errors, bool $control = false, ?string $elId = null): string
 	{
+		if (!$errors) {
+			return '';
+		}
+		
 		$container = $this->getWrapper($control ? 'control errorcontainer' : 'error container');
 		$item = $this->getWrapper($control ? 'control erroritem' : 'error item');
-
-		$elId = ($control ? $control->getHtmlId(): $this->form->getElementPrototype()->getAttribute('id'));
-
-		$container->setAttribute('id', 'snippet-' . $elId . '-errors');
-
-		if ($control) {
-			$errors = $control->getErrors();
-		}
 
 		foreach ($errors as $error) {
 			$item = clone $item;
@@ -143,10 +141,14 @@ class FormRenderer extends DefaultFormRenderer
 			$container->addHtml($item);
 		}
 
-		if ($control && $errors) {
-			$container->addHtml('<script>document.getElementById("' . $elId . '").classList.add("is-invalid");</script>');
+		if ($elId) {
+			$container
+				->setAttribute('id', 'snippet-' . $elId . '-errors')
+				->addHtml('<script>document.getElementById("' . $elId . '").classList.add("is-invalid");</script>');
 		}
 
-		return "\n" . $container->render($control ? 1 : 0);
+		return $control
+			? "\n\t" . $container->render()
+			: "\n" . $container->render(0);
 	}
 }
