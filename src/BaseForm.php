@@ -7,6 +7,7 @@ use Nette\Application\UI\Control;
 use Nette\Application\UI\Presenter;
 use Nette\Forms\Controls\Checkbox;
 use Nette\Forms\Form;
+use Nette\Forms\IControl;
 
 /**
  * @property-read EntityForm $form
@@ -113,9 +114,10 @@ abstract class BaseForm extends Control
 			$this->presenter->payload->snippets['snippet-' . $form->getElementPrototype()->getAttribute('id') . '-errors'] = $renderer->renderErrors();
 
 			$renderer->wrappers['control']['errorcontainer'] = null;
+			/** @var IControl $control */
 			foreach ($form->getControls() as $control) {
 				if ($control->getErrors()) {
-					$this->presenter->payload->snippets['snippet-' . $control->getHtmlId() . '-errors'] = $renderer->doRenderErrors($control);
+					$this->presenter->payload->snippets['snippet-' . $control->getHtmlId() . '-errors'] = $renderer->renderErrors($control);
 				}
 			}
 
