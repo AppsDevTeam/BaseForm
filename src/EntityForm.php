@@ -2,6 +2,7 @@
 
 namespace ADT\BaseForm;
 
+use ADT\DoctrineForms\ToManyContainer;
 use ADT\DoctrineForms\ToOneContainer;
 use ADT\EmailStrictInput;
 use ADT\Forms\Controls\CurrencyInput;
