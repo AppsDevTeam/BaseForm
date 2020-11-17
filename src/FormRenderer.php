@@ -122,12 +122,15 @@ class FormRenderer extends DefaultFormRenderer
 		return $this->doRenderErrors($errors, (bool) $control, $control ? $control->getHtmlId() : $this->form->getElementPrototype()->getId());
 	}
 
+	/**
+	 * We want to render erros if
+	 * @param array $errors
+	 * @param bool $control
+	 * @param string|null $elId
+	 * @return string
+	 */
 	public function doRenderErrors(array $errors, bool $control = false, ?string $elId = null): string
 	{
-		if (!$errors) {
-			return '';
-		}
-		
 		$container = $this->getWrapper($control ? 'control errorcontainer' : 'error container');
 		$item = $this->getWrapper($control ? 'control erroritem' : 'error item');
 
@@ -142,9 +145,14 @@ class FormRenderer extends DefaultFormRenderer
 		}
 
 		if ($elId) {
+			// we want to render container for errors even if there are no errors
+			// to be able to redraw it on ajax call
 			$container
-				->setAttribute('id', 'snippet-' . $elId . '-errors')
-				->addHtml('<script>document.getElementById("' . $elId . '").classList.add("is-invalid");</script>');
+				->setAttribute('id', 'snippet-' . $elId . '-errors');
+
+			if ($errors) {
+				$container->addHtml('<script>document.getElementById("' . $elId . '").classList.add("is-invalid");</script>');
+			}
 		}
 
 		return $control
