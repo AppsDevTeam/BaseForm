@@ -11,7 +11,6 @@ use Nette\Forms\IControl;
 
 /**
  * @property-read EntityForm $form
- * @method onAfterAttach($form)
  * @method onBeforeInit($form)
  * @method onAfterInit($form)
  * @method onBeforeProcess($form)
