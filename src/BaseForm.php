@@ -13,11 +13,25 @@ use Nette\Forms\IControl;
  * @property-read EntityForm $form
  * @method onBeforeInit($form)
  * @method onAfterInit($form)
+ * @method onBeforeProcess($form)
+ * @method onAfterProcess($form)
  */
 abstract class BaseForm extends Control
 {
-	public $templateFilename = NULL;
-	public $isAjax = true;
+	/**
+	 * @var string|null
+	 */
+	public ?string $templateFilename = null;
+
+	/**
+	 * @var bool
+	 */
+	public bool $isAjax = true;
+
+	/**
+	 * @var bool
+	 */
+	public bool $emptyHiddenToggleControls = false;
 
 	/** @var callable[] */
 	public $onBeforeInit = [];
@@ -25,17 +39,18 @@ abstract class BaseForm extends Control
 	/** @var callable[] */
 	public $onAfterInit = [];
 
+	/** @var callable[] */
+	public $onBeforeProcess = [];
+
+	/** @var callable[] */
+	public $onAfterProcess = [];
+
 	protected $row;
 
 	abstract protected function init(EntityForm $form);
 
 	public function __construct()
 	{
-		$this->monitor(Presenter::class, function($presenter) {
-			/** can't be named "attached" because of Nette 2.4 compatibility */
-			$this->attach($presenter);
-		});
-
 		// we have to register callbacks here to ensure execution in the right order
 		// when another callback is added in the presenter
 		$form = $this->getForm();
@@ -52,36 +67,35 @@ abstract class BaseForm extends Control
 
 		/** @link BaseForm::errorFormCallback() */
 		$form->onError[] = [$this, 'errorFormCallback'];
-	}
 
-	protected function attach(Presenter $presenter): void
-	{
-		$form = $this->getForm();
+		$this->monitor(Presenter::class, function($presenter) {
+			$form = $this->getForm();
 
-		$form->onRender[] = [$this, 'bootstrap4'];
-		
-		if ($this->row) {
-			$form->setEntity($this->row);
-		}
+			$form->onRender[] = [$this, 'bootstrap4'];
 
-		$this->onBeforeInit($form);
-
-		$this->init($form);
-
-		if ($this->row) {
-			$this->mapToForm();
-		}
-
-		$this->onAfterInit($form);
-
-		if ($form->isSubmitted()) {
-			if (is_bool($form->isSubmitted())) {
-				$form->setSubmittedBy(null);
+			if ($this->row) {
+				$form->setEntity($this->row);
 			}
-			elseif ($form->isSubmitted()->getValidationScope() !== null) {
-				$form->onValidate = null;
+
+			$this->onBeforeInit($form);
+
+			$this->init($form);
+
+			if ($this->row) {
+				$form->mapToForm();
 			}
-		}
+
+			$this->onAfterInit($form);
+
+			if ($form->isSubmitted()) {
+				if (is_bool($form->isSubmitted())) {
+					$form->setSubmittedBy(null);
+				}
+				elseif ($form->isSubmitted()->getValidationScope() !== null) {
+					$form->onValidate = null;
+				}
+			}
+		});
 	}
 
 	public function validateFormCallback(EntityForm $form)
@@ -96,12 +110,29 @@ abstract class BaseForm extends Control
 
 	public function processFormCallback(EntityForm $form)
 	{
+		$this->onBeforeProcess($form);
+
+		// empty hidden toggles
+		if ($this->emptyHiddenToggleControls) {
+			$toggles = $form->getToggles();
+			foreach ($form->getGroups() as $_group) {
+				$label = $_group->getOption('label');
+				if (isset($toggles[$label]) && $toggles[$label] === false) {
+					foreach ($_group->getControls() as $_control) {
+						$_control->setValue(null);
+					}
+				}
+			}
+		}
+
 		if ($this->row) {
 			$this->processForm($form->getEntity());
 		}
 		else {
 			$this->processForm($form->values);
 		}
+
+		$this->onAfterProcess($form);
 	}
 
 	public function errorFormCallback(EntityForm $form)
@@ -150,6 +181,16 @@ abstract class BaseForm extends Control
 		$this->template->render();
 	}
 
+	protected function createComponentForm()
+	{
+		return new EntityForm();
+	}
+
+	protected function _()
+	{
+		return call_user_func_array([$this->getForm()->getTranslator(), 'translate'], func_get_args());
+	}
+
 	public function setRow($row): self
 	{
 		$this->row = $row;
@@ -168,6 +209,18 @@ abstract class BaseForm extends Control
 		return $this;
 	}
 
+	public function setOnBeforeProcess(callable $onBeforeProcess): self
+	{
+		$this->onBeforeProcess[] = $onBeforeProcess;
+		return $this;
+	}
+
+	public function setOnAfterProcess(callable $onAfterProcess): self
+	{
+		$this->onAfterProcess[] = $onAfterProcess;
+		return $this;
+	}
+
 	public function setOnSuccess(callable $onSuccess): self
 	{
 		$this['form']->onSuccess[] = $onSuccess;
@@ -180,21 +233,6 @@ abstract class BaseForm extends Control
 	public function getForm()
 	{
 		return $this['form'];
-	}
-
-	protected function createComponentForm()
-	{
-		return new EntityForm();
-	}
-
-	protected function mapToForm()
-	{
-		$this->getForm()->mapToForm();
-	}
-
-	protected function _()
-	{
-		return call_user_func_array([$this->getForm()->getTranslator(), 'translate'], func_get_args());
 	}
 
 	public static function bootstrap4(Form $form): void
