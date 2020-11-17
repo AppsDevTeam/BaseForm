@@ -13,10 +13,12 @@ use Nette\Forms\IControl;
  * @property-read EntityForm $form
  * @method onBeforeInit($form)
  * @method onAfterInit($form)
+ * @method onBeforeProcess($form)
+ * @method onAfterProcess($form)
  */
 abstract class BaseForm extends Control
 {
-	public $templateFilename = NULL;
+	public $templateFilename = null;
 	public $isAjax = true;
 
 	/** @var callable[] */
@@ -24,6 +26,12 @@ abstract class BaseForm extends Control
 
 	/** @var callable[] */
 	public $onAfterInit = [];
+
+	/** @var callable[] */
+	public $onBeforeProcess = [];
+
+	/** @var callable[] */
+	public $onAfterProcess = [];
 
 	protected $row;
 
@@ -96,12 +104,27 @@ abstract class BaseForm extends Control
 
 	public function processFormCallback(EntityForm $form)
 	{
+		$this->onBeforeProcess($form);
+
+		// empty hidden toggles
+		$toggles = $form->getToggles();
+		foreach ($form->getGroups() as $_group) {
+			$label = $_group->getOption('label');
+			if (isset($toggles[$label]) && $toggles[$label] === false) {
+				foreach ($_group->getControls() as $_control) {
+					$_control->setValue(null);
+				}
+			}
+		}
+
 		if ($this->row) {
 			$this->processForm($form->getEntity());
 		}
 		else {
 			$this->processForm($form->values);
 		}
+
+		$this->onAfterProcess($form);
 	}
 
 	public function errorFormCallback(EntityForm $form)
