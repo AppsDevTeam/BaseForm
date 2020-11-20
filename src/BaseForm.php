@@ -2,6 +2,7 @@
 
 namespace ADT\BaseForm;
 
+use ADT\DoctrineForms\ToManyContainer;
 use ADT\Forms\Controls\PhoneNumberInput;
 use Nette\Application\UI\Control;
 use Nette\Application\UI\Presenter;
@@ -93,6 +94,13 @@ abstract class BaseForm extends Control
 				}
 				elseif ($form->isSubmitted()->getValidationScope() !== null) {
 					$form->onValidate = null;
+				}
+			}
+			else {
+				// we want to create an empty container in ToManyContainer here
+				// because when creating in latte bootstrap4 decorators are not applied
+				foreach ($form->getComponents(true, ToManyContainer::class) as $_toManyContainer) {
+					$_toManyContainer->createOne();
 				}
 			}
 		});
