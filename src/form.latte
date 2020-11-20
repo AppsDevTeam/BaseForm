@@ -3,7 +3,8 @@
 {/define}
 
 {define renderContainer}
-	{if !$container instanceof \Nette\Forms\ControlGroup && $container->getGroups()}
+	{var $form = $container->getForm()}
+	{if $container instanceof Nette\Forms\Form && $container->getGroups()}
 		{foreach $container->getGroups() as $_group}
 			{continueIf !$_group->getOption('visual')}
 
