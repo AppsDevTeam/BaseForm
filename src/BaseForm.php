@@ -99,8 +99,12 @@ abstract class BaseForm extends Control
 			else {
 				// we want to create an empty container in ToManyContainer here
 				// because when creating in latte bootstrap4 decorators are not applied
+				/** @var ToManyContainer $_toManyContainer */
 				foreach ($form->getComponents(true, ToManyContainer::class) as $_toManyContainer) {
-					$_toManyContainer->createOne();
+					if ($_toManyContainer->isAllowAdding()) {
+						$_toManyContainer->createOne();
+					}
+					
 				}
 			}
 		});
