@@ -6,6 +6,7 @@ use ADT\DoctrineForms\ToManyContainer;
 use ADT\Forms\Controls\PhoneNumberInput;
 use Nette\Application\UI\Control;
 use Nette\Application\UI\Presenter;
+use Nette\Forms\Controls\BaseControl;
 use Nette\Forms\Controls\Checkbox;
 use Nette\Forms\Form;
 use Nette\Forms\IControl;
@@ -94,17 +95,6 @@ abstract class BaseForm extends Control
 				}
 				elseif ($form->isSubmitted()->getValidationScope() !== null) {
 					$form->onValidate = null;
-				}
-			}
-			else {
-				// we want to create an empty container in ToManyContainer here
-				// because when creating in latte bootstrap4 decorators are not applied
-				/** @var ToManyContainer $_toManyContainer */
-				foreach ($form->getComponents(true, ToManyContainer::class) as $_toManyContainer) {
-					if ($_toManyContainer->isAllowAdding()) {
-						$_toManyContainer->createOne();
-					}
-					
 				}
 			}
 		});
@@ -262,7 +252,23 @@ abstract class BaseForm extends Control
 		$renderer->wrappers['control']['erroritem'] = 'div';
 		$renderer->wrappers['control']['description'] = 'small class=form-text text-muted';
 
-		foreach ($form->getControls() as $control) {
+		static::bootstrap4Controls($form->getControls());
+
+		// we need to create a template container for ToManyContainer
+		// and apply bootstrap4 styles separately
+		// because the template is not part of form controls
+		/** @var ToManyContainer $_toManyContainer */
+		foreach ($form->getComponents(true, ToManyContainer::class) as $_toManyContainer) {
+			if ($_toManyContainer->isAllowAdding()) {
+				static::bootstrap4Controls($_toManyContainer->createTemplate()->getControls());
+			}
+		}
+	}
+
+	public static function bootstrap4Controls(\CallbackFilterIterator $controls)
+	{
+		/** @var BaseControl $control */
+		foreach ($controls as $control) {
 			$type = $control->getOption('type');
 			if ($type === 'button') {
 				if ($control->getValidationScope() !== null) {
