@@ -252,23 +252,17 @@ abstract class BaseForm extends Control
 		$renderer->wrappers['control']['erroritem'] = 'div';
 		$renderer->wrappers['control']['description'] = 'small class=form-text text-muted';
 
-		static::bootstrap4Controls($form->getControls());
-
 		// we need to create a template container for ToManyContainer
-		// and apply bootstrap4 styles separately
-		// because the template is not part of form controls
+		// to apply bootstrap4 styles below
 		/** @var ToManyContainer $_toManyContainer */
 		foreach ($form->getComponents(true, ToManyContainer::class) as $_toManyContainer) {
 			if ($_toManyContainer->isAllowAdding()) {
-				static::bootstrap4Controls($_toManyContainer->createTemplate()->getControls());
+				$_toManyContainer->getTemplate();
 			}
 		}
-	}
 
-	public static function bootstrap4Controls(\CallbackFilterIterator $controls)
-	{
 		/** @var BaseControl $control */
-		foreach ($controls as $control) {
+		foreach ($form->getControls() as $control) {
 			$type = $control->getOption('type');
 			if ($type === 'button') {
 				if ($control->getValidationScope() !== null) {
