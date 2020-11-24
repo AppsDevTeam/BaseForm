@@ -40,7 +40,7 @@
 
 {snippetArea formArea}
 	{ifset $customTemplatePath}
-		{includeblock $customTemplatePath}
+		{include $customTemplatePath with blocks}
 	{else}
 		{form form}
 			{include errors}
