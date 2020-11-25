@@ -259,6 +259,9 @@ abstract class BaseForm extends Control
 			if ($_toManyContainer->isAllowAdding()) {
 				$_toManyContainer->getTemplate();
 			}
+			elseif (!iterator_count($_toManyContainer->getComponents())) {
+				$_toManyContainer->createOne();
+			}
 		}
 
 		/** @var BaseControl $control */
