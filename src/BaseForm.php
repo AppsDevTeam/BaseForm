@@ -51,18 +51,20 @@ abstract class BaseForm extends Control
 		$this->monitor(Presenter::class, function($presenter) use ($dic) {
 			$form = $this->getForm()->setDic($dic);
 
-			// we want default events to be executed first
-			if (method_exists($this, 'validateForm')) {
-				/** @link BaseForm::validateFormCallback() */
-				array_unshift($form->onValidate, [$this, 'validateFormCallback']);
-			}
+			/** @link BaseForm::validateFormCallback() */
 			/** @link BaseForm::processFormCallback() */
-			if (method_exists($this, 'processForm')) {
-				array_unshift($form->onSuccess, [$this, 'processFormCallback']);
-			}
 			/** @link BaseForm::errorFormCallback() */
-			array_unshift($form->onError[], [$this, 'errorFormCallback']);
-			array_unshift($form->onRender[], [$this, 'bootstrap4']);
+			/** @link BaseForm::bootstrap4() */
+			foreach(['onValidate' => 'validateFormCallback', 'onSuccess' => 'processFormCallback', 'onError' => 'errorFormCallback', 'onRender' => 'bootstrap4'] as $event => $callback) {
+				if (method_exists($this, $callback)) {
+					if ($form->$event === null) {
+						$form->$event = [];
+					}
+
+					// we want default events to be executed first
+					array_unshift($form->$event, [$this, $callback]);
+				}
+			}
 
 			if ($this->row) {
 				$form->setEntity($this->row);
