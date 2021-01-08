@@ -56,14 +56,13 @@ abstract class BaseForm extends Control
 			/** @link BaseForm::errorFormCallback() */
 			/** @link BaseForm::bootstrap4() */
 			foreach(['onValidate' => 'validateFormCallback', 'onSuccess' => 'processFormCallback', 'onError' => 'errorFormCallback', 'onRender' => 'bootstrap4'] as $event => $callback) {
-				if (method_exists($this, $callback)) {
-					if ($form->$event === null) {
-						$form->$event = [];
-					}
-
-					// we want default events to be executed first
-					array_unshift($form->$event, [$this, $callback]);
+				// first argument of array_unshift has to be an array
+				if ($form->$event === null) {
+					$form->$event = [];
 				}
+
+				// we want default events to be executed first
+				array_unshift($form->$event, [$this, $callback]);
 			}
 
 			if ($this->row) {
@@ -93,6 +92,10 @@ abstract class BaseForm extends Control
 
 	public function validateFormCallback(EntityForm $form)
 	{
+		if (!method_exists($this, 'validateForm')) {
+			return;
+		}
+
 		if ($this->row) {
 			$this->validateForm($form->getEntity());
 		}
@@ -103,6 +106,10 @@ abstract class BaseForm extends Control
 
 	public function processFormCallback(EntityForm $form)
 	{
+		if (!method_exists($this, 'processForm')) {
+			return;
+		}
+
 		$this->onBeforeProcess($form);
 
 		// empty hidden toggles
