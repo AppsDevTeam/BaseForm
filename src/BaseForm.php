@@ -6,6 +6,7 @@ use ADT\DoctrineForms\ToManyContainer;
 use ADT\Forms\Controls\PhoneNumberInput;
 use Nette\Application\UI\Control;
 use Nette\Application\UI\Presenter;
+use Nette\DI\Container;
 use Nette\Forms\Controls\BaseControl;
 use Nette\Forms\Controls\Checkbox;
 use Nette\Forms\Form;
@@ -20,19 +21,13 @@ use Nette\Forms\IControl;
  */
 abstract class BaseForm extends Control
 {
-	/**
-	 * @var string|null
-	 */
+	/** @var string|null */
 	public ?string $templateFilename = null;
 
-	/**
-	 * @var bool
-	 */
+	/** @var bool */
 	public bool $isAjax = true;
 
-	/**
-	 * @var bool
-	 */
+	/** @var bool */
 	public bool $emptyHiddenToggleControls = false;
 
 	/** @var callable[] */
@@ -51,29 +46,24 @@ abstract class BaseForm extends Control
 
 	abstract protected function init(EntityForm $form);
 
-	public function __construct()
+	public function __construct(Container $dic)
 	{
-		// we have to register callbacks here to ensure execution in the right order
-		// when another callback is added in the presenter
-		$form = $this->getForm();
+		$this->monitor(Presenter::class, function($presenter) use ($dic) {
+			$form = $this->getForm()->setDic($dic);
 
-		if (method_exists($this, 'validateForm')) {
 			/** @link BaseForm::validateFormCallback() */
-			$form->onValidate[] = [$this, 'validateFormCallback'];
-		}
+			/** @link BaseForm::processFormCallback() */
+			/** @link BaseForm::errorFormCallback() */
+			/** @link BaseForm::bootstrap4() */
+			foreach(['onValidate' => 'validateFormCallback', 'onSuccess' => 'processFormCallback', 'onError' => 'errorFormCallback', 'onRender' => 'bootstrap4'] as $event => $callback) {
+				// first argument of array_unshift has to be an array
+				if ($form->$event === null) {
+					$form->$event = [];
+				}
 
-		/** @link BaseForm::processFormCallback() */
-		if (method_exists($this, 'processForm')) {
-			$form->onSuccess[] = [$this, 'processFormCallback'];
-		}
-
-		/** @link BaseForm::errorFormCallback() */
-		$form->onError[] = [$this, 'errorFormCallback'];
-
-		$this->monitor(Presenter::class, function($presenter) {
-			$form = $this->getForm();
-
-			$form->onRender[] = [$this, 'bootstrap4'];
+				// we want default events to be executed first
+				array_unshift($form->$event, [$this, $callback]);
+			}
 
 			if ($this->row) {
 				$form->setEntity($this->row);
@@ -102,6 +92,10 @@ abstract class BaseForm extends Control
 
 	public function validateFormCallback(EntityForm $form)
 	{
+		if (!method_exists($this, 'validateForm')) {
+			return;
+		}
+
 		if ($this->row) {
 			$this->validateForm($form->getEntity());
 		}
@@ -112,6 +106,10 @@ abstract class BaseForm extends Control
 
 	public function processFormCallback(EntityForm $form)
 	{
+		if (!method_exists($this, 'processForm')) {
+			return;
+		}
+
 		$this->onBeforeProcess($form);
 
 		// empty hidden toggles
