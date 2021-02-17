@@ -21,6 +21,9 @@ use Nette\Forms\IControl;
  */
 abstract class BaseForm extends Control
 {
+	const RENDERER_BOOTSTRAP4 = 'bootstrap4';
+	const RENDERER_BOOTSTRAP5 = 'bootstrap5';
+
 	/** @var string|null */
 	public ?string $templateFilename = null;
 
@@ -42,6 +45,8 @@ abstract class BaseForm extends Control
 	/** @var callable[] */
 	public $onAfterProcess = [];
 
+	public string $renderer = self::RENDERER_BOOTSTRAP5;
+
 	protected $row;
 
 	abstract protected function init(EntityForm $form);
@@ -55,7 +60,7 @@ abstract class BaseForm extends Control
 			/** @link BaseForm::processFormCallback() */
 			/** @link BaseForm::errorFormCallback() */
 			/** @link BaseForm::bootstrap4() */
-			foreach(['onValidate' => 'validateFormCallback', 'onSuccess' => 'processFormCallback', 'onError' => 'errorFormCallback', 'onRender' => 'bootstrap4'] as $event => $callback) {
+			foreach(['onValidate' => 'validateFormCallback', 'onSuccess' => 'processFormCallback', 'onError' => 'errorFormCallback', 'onRender' => $this->renderer] as $event => $callback) {
 				// first argument of array_unshift has to be an array
 				if ($form->$event === null) {
 					$form->$event = [];
@@ -139,7 +144,7 @@ abstract class BaseForm extends Control
 	{
 		if ($this->presenter->isAjax()) {
 			$renderer = $form->getRenderer();
-			$this->bootstrap4($form);
+			call_user_func([$this, $this->renderer], $form);
 
 			$renderer->wrappers['error']['container'] = null;
 			$this->presenter->payload->snippets['snippet-' . $form->getElementPrototype()->getAttribute('id') . '-errors'] = $renderer->renderErrors();
@@ -246,6 +251,7 @@ abstract class BaseForm extends Control
 		$renderer->wrappers['label']['container'] = null;
 		$renderer->wrappers['control']['container'] = null;
 		$renderer->wrappers['control']['.error'] = 'is-invalid';
+		$renderer->wrappers['control']['.file'] = 'form-control-file';
 		$renderer->wrappers['control']['errorcontainer'] = 'div class=invalid-feedback';
 		$renderer->wrappers['control']['erroritem'] = 'div';
 		$renderer->wrappers['control']['description'] = 'small class=form-text text-muted';
@@ -277,9 +283,6 @@ abstract class BaseForm extends Control
 						->addHtml($control->getControl()->attrs['value']);
 				}
 
-			} elseif ($type === 'file') {
-				$control->getControlPrototype()->addClass('form-control-file');
-
 			} elseif (in_array($type, ['checkbox', 'radio'], true)) {
 				if ($control instanceof Checkbox) {
 					$control->getLabelPrototype()->addClass('form-check-label');
@@ -296,6 +299,19 @@ abstract class BaseForm extends Control
 			} else {
 				$control->getControlPrototype()->addClass('form-control');
 			}
+		}
+	}
+
+	public static function bootstrap5(Form $form): void
+	{
+		self::bootstrap4($form);
+
+		$renderer = $form->getRenderer();
+		$renderer->wrappers['pair']['container'] = 'div class=mb-3';
+		$renderer->wrappers['control']['.file'] = 'form-control';
+
+		foreach ($form->getControls() as $control) {
+			$control->getLabelPrototype()->addClass('form-label');
 		}
 	}
 }
