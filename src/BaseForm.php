@@ -49,7 +49,7 @@ abstract class BaseForm extends Control
 	/** @var callable[] */
 	public $onAfterProcess = [];
 
-	public string $renderer = self::RENDERER_BOOTSTRAP5;
+	public static string $renderer = self::RENDERER_BOOTSTRAP5;
 
 	protected $row;
 
@@ -62,9 +62,9 @@ abstract class BaseForm extends Control
 
 			/** @link BaseForm::validateFormCallback() */
 			/** @link BaseForm::processFormCallback() */
-			/** @link BaseForm::errorFormCallback() */
+			/** @link BaseForm::sendErrorPayload() */
 			/** @link BaseForm::bootstrap4() */
-			foreach(['onValidate' => 'validateFormCallback', 'onSuccess' => 'processFormCallback', 'onError' => 'errorFormCallback', 'onRender' => $this->renderer] as $event => $callback) {
+			foreach(['onValidate' => 'validateFormCallback', 'onSuccess' => 'processFormCallback', 'onError' => 'sendErrorPayload', 'onRender' => static::$renderer] as $event => $callback) {
 				// first argument of array_unshift has to be an array
 				if ($form->$event === null) {
 					$form->$event = [];
@@ -89,6 +89,10 @@ abstract class BaseForm extends Control
 
 				$this->onAfterMapToForm($form);
 			}
+			
+			// we do not use onRender callback because if the form is not valid,
+			// we return only rendered errors without rendering the entire form.
+			call_user_func([static::class, static::$renderer], $form);
 
 			if ($form->isSubmitted()) {
 				if (is_bool($form->isSubmitted())) {
@@ -152,24 +156,26 @@ abstract class BaseForm extends Control
 		$this->onAfterProcess($form, $form->getValues());
 	}
 
-	public function errorFormCallback(EntityForm $form)
+	public static function sendErrorPayload(Form $form)
 	{
-		if ($this->presenter->isAjax()) {
+		if ($form->getPresenter()->isAjax()) {
 			$renderer = $form->getRenderer();
-			call_user_func([$this, $this->renderer], $form);
+			$presenter = $form->getPresenter();
+			
+		//	call_user_func([static::class, static::$renderer], $form);
 
 			$renderer->wrappers['error']['container'] = null;
-			$this->presenter->payload->snippets['snippet-' . $form->getElementPrototype()->getAttribute('id') . '-errors'] = $renderer->renderErrors();
+			$presenter->payload->snippets['snippet-' . $form->getElementPrototype()->getAttribute('id') . '-errors'] = $renderer->renderErrors();
 
 			$renderer->wrappers['control']['errorcontainer'] = null;
 			/** @var IControl $control */
 			foreach ($form->getControls() as $control) {
 				if ($control->getErrors()) {
-					$this->presenter->payload->snippets['snippet-' . $control->getHtmlId() . '-errors'] = $renderer->renderErrors($control);
+					$presenter->payload->snippets['snippet-' . $control->getHtmlId() . '-errors'] = $renderer->renderErrors($control);
 				}
 			}
 
-			$this->presenter->sendPayload();
+			$presenter->sendPayload();
 		}
 	}
 
@@ -316,6 +322,7 @@ abstract class BaseForm extends Control
 				$control->getControlPrototype(PhoneNumberInput::CONTROL_NATIONAL_NUMBER)->addClass('form-control');
 
 			} else {
+				bd ($control->getName());
 				$control->getControlPrototype()->addClass('form-control');
 			}
 		}
@@ -323,7 +330,7 @@ abstract class BaseForm extends Control
 
 	public static function bootstrap5(Form $form): void
 	{
-		self::bootstrap4($form);
+		static::bootstrap4($form);
 
 		$renderer = $form->getRenderer();
 		$renderer->wrappers['pair']['container'] = 'div class=mb-3';
