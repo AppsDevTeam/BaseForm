@@ -89,10 +89,6 @@ abstract class BaseForm extends Control
 
 				$this->onAfterMapToForm($form);
 			}
-			
-			// we do not use onRender callback because if the form is not valid,
-			// we return only rendered errors without rendering the entire form.
-			call_user_func([static::class, static::$renderer], $form);
 
 			if ($form->isSubmitted()) {
 				if (is_bool($form->isSubmitted())) {
@@ -162,7 +158,7 @@ abstract class BaseForm extends Control
 			$renderer = $form->getRenderer();
 			$presenter = $form->getPresenter();
 			
-		//	call_user_func([static::class, static::$renderer], $form);
+			call_user_func([static::class, static::$renderer], $form);
 
 			$renderer->wrappers['error']['container'] = null;
 			$presenter->payload->snippets['snippet-' . $form->getElementPrototype()->getAttribute('id') . '-errors'] = $renderer->renderErrors();
@@ -322,7 +318,6 @@ abstract class BaseForm extends Control
 				$control->getControlPrototype(PhoneNumberInput::CONTROL_NATIONAL_NUMBER)->addClass('form-control');
 
 			} else {
-				bd ($control->getName());
 				$control->getControlPrototype()->addClass('form-control');
 			}
 		}
