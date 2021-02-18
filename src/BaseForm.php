@@ -139,7 +139,7 @@ abstract class BaseForm extends Control
 				$this->processForm($form->getEntity());
 			}
 			else {
-				$this->processForm($form->getValue());
+				$this->processForm($form->getValues());
 			}
 		}
 
