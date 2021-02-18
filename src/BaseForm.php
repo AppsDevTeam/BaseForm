@@ -15,6 +15,7 @@ use Nette\Forms\IControl;
 /**
  * @property-read EntityForm $form
  * @method onBeforeInit($form)
+ * @method onAfterInit($form)
  * @method onAfterMapToForm($form)
  * @method onAfterMapToEntity($form)
  * @method onAfterProcess($form)
@@ -35,6 +36,9 @@ abstract class BaseForm extends Control
 
 	/** @var callable[] */
 	public $onBeforeInit = [];
+
+	/** @var callable[] */
+	public $onAfterInit = [];
 
 	/** @var callable[] */
 	public $onAfterMapToForm = [];
@@ -77,6 +81,8 @@ abstract class BaseForm extends Control
 			$this->onBeforeInit($form);
 
 			$this->init($form);
+
+			$this->onAfterInit($form);
 
 			if ($this->row) {
 				$form->mapToForm();
@@ -211,6 +217,12 @@ abstract class BaseForm extends Control
 	public function setOnBeforeInit(callable $onBeforeInit): self
 	{
 		$this->onBeforeInit[] = $onBeforeInit;
+		return $this;
+	}
+
+	public function setOnAfterInit(callable $onAfterInit): self
+	{
+		$this->onAfterInit[] = $onAfterInit;
 		return $this;
 	}
 
