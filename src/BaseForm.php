@@ -111,11 +111,9 @@ abstract class BaseForm extends Control
 
 	public function processFormCallback(EntityForm $form)
 	{
-		if (!method_exists($this, 'processForm')) {
+		if ($form->isSubmitted()->getValidationScope() !== null) {
 			return;
 		}
-
-		$this->onBeforeProcess($form);
 
 		// empty hidden toggles
 		if ($this->emptyHiddenToggleControls) {
@@ -131,13 +129,21 @@ abstract class BaseForm extends Control
 		}
 
 		if ($this->row) {
-			$this->processForm($form->getEntity());
-		}
-		else {
-			$this->processForm($form->values);
+			$this->getForm()->mapToEntity();
 		}
 
-		$this->onAfterProcess($form);
+		$this->onBeforeProcess($form);
+
+		if (method_exists($this, 'processForm')) {
+			if ($this->row) {
+				$this->processForm($form->getEntity());
+			}
+			else {
+				$this->processForm($form->getValue());
+			}
+		}
+
+		$this->onAfterProcess($form, $form->getValues());
 	}
 
 	public function errorFormCallback(EntityForm $form)
@@ -226,9 +232,10 @@ abstract class BaseForm extends Control
 		return $this;
 	}
 
+	/** @deprecated Use setOnAfterProcess instead */
 	public function setOnSuccess(callable $onSuccess): self
 	{
-		$this['form']->onSuccess[] = $onSuccess;
+		$this->setOnAfterProcess($onSuccess);
 		return $this;
 	}
 
