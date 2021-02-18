@@ -16,7 +16,8 @@ use Nette\Forms\IControl;
  * @property-read EntityForm $form
  * @method onBeforeInit($form)
  * @method onAfterInit($form)
- * @method onBeforeProcess($form)
+ * @method onAfterMapToForm($form)
+ * @method onAfterMapToEntity($form)
  * @method onAfterProcess($form)
  */
 abstract class BaseForm extends Control
@@ -40,7 +41,10 @@ abstract class BaseForm extends Control
 	public $onAfterInit = [];
 
 	/** @var callable[] */
-	public $onBeforeProcess = [];
+	public $onAfterMapToForm = [];
+
+	/** @var callable[] */
+	public $onAfterMapToEntity = [];
 
 	/** @var callable[] */
 	public $onAfterProcess = [];
@@ -78,18 +82,20 @@ abstract class BaseForm extends Control
 
 			$this->init($form);
 
+			$this->onAfterInit($form);
+
 			if ($this->row) {
 				$form->mapToForm();
-			}
 
-			$this->onAfterInit($form);
+				$this->onAfterMapToForm($form);
+			}
 
 			if ($form->isSubmitted()) {
 				if (is_bool($form->isSubmitted())) {
 					$form->setSubmittedBy(null);
 				}
 				elseif ($form->isSubmitted()->getValidationScope() !== null) {
-					$form->onValidate = null;
+					$form->onValidate = [];
 				}
 			}
 		});
@@ -111,11 +117,9 @@ abstract class BaseForm extends Control
 
 	public function processFormCallback(EntityForm $form)
 	{
-		if (!method_exists($this, 'processForm')) {
+		if ($form->isSubmitted()->getValidationScope() !== null) {
 			return;
 		}
-
-		$this->onBeforeProcess($form);
 
 		// empty hidden toggles
 		if ($this->emptyHiddenToggleControls) {
@@ -131,13 +135,21 @@ abstract class BaseForm extends Control
 		}
 
 		if ($this->row) {
-			$this->processForm($form->getEntity());
-		}
-		else {
-			$this->processForm($form->values);
+			$this->getForm()->mapToEntity();
+
+			$this->onAfterMapToEntity($form);
 		}
 
-		$this->onAfterProcess($form);
+		if (method_exists($this, 'processForm')) {
+			if ($this->row) {
+				$this->processForm($form->getEntity());
+			}
+			else {
+				$this->processForm($form->getValues());
+			}
+		}
+
+		$this->onAfterProcess($form, $form->getValues());
 	}
 
 	public function errorFormCallback(EntityForm $form)
@@ -214,9 +226,15 @@ abstract class BaseForm extends Control
 		return $this;
 	}
 
-	public function setOnBeforeProcess(callable $onBeforeProcess): self
+	public function setOnAfterMapToForm(callable $onAfterMapToForm): self
 	{
-		$this->onBeforeProcess[] = $onBeforeProcess;
+		$this->onAfterMapToForm[] = $onAfterMapToForm;
+		return $this;
+	}
+
+	public function setOnAfterMapToEntity(callable $onAfterMapToEntity): self
+	{
+		$this->onAfterMapToEntity[] = $onAfterMapToEntity;
 		return $this;
 	}
 
@@ -226,9 +244,10 @@ abstract class BaseForm extends Control
 		return $this;
 	}
 
+	/** @deprecated Use setOnAfterProcess instead */
 	public function setOnSuccess(callable $onSuccess): self
 	{
-		$this['form']->onSuccess[] = $onSuccess;
+		$this->setOnAfterProcess($onSuccess);
 		return $this;
 	}
 
