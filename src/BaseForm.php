@@ -15,8 +15,8 @@ use Nette\Forms\IControl;
 /**
  * @property-read EntityForm $form
  * @method onBeforeInit($form)
- * @method onAfterInit($form)
- * @method onBeforeProcess($form)
+ * @method onAfterMapToForm($form)
+ * @method onAfterMapToEntity($form)
  * @method onAfterProcess($form)
  */
 abstract class BaseForm extends Control
@@ -37,10 +37,10 @@ abstract class BaseForm extends Control
 	public $onBeforeInit = [];
 
 	/** @var callable[] */
-	public $onAfterInit = [];
+	public $onAfterMapToForm = [];
 
 	/** @var callable[] */
-	public $onBeforeProcess = [];
+	public $onAfterMapToEntity = [];
 
 	/** @var callable[] */
 	public $onAfterProcess = [];
@@ -80,16 +80,16 @@ abstract class BaseForm extends Control
 
 			if ($this->row) {
 				$form->mapToForm();
-			}
 
-			$this->onAfterInit($form);
+				$this->onAfterMapToForm($form);
+			}
 
 			if ($form->isSubmitted()) {
 				if (is_bool($form->isSubmitted())) {
 					$form->setSubmittedBy(null);
 				}
 				elseif ($form->isSubmitted()->getValidationScope() !== null) {
-					$form->onValidate = null;
+					$form->onValidate = [];
 				}
 			}
 		});
@@ -130,9 +130,9 @@ abstract class BaseForm extends Control
 
 		if ($this->row) {
 			$this->getForm()->mapToEntity();
-		}
 
-		$this->onBeforeProcess($form);
+			$this->onAfterMapToEntity($form);
+		}
 
 		if (method_exists($this, 'processForm')) {
 			if ($this->row) {
@@ -214,15 +214,15 @@ abstract class BaseForm extends Control
 		return $this;
 	}
 
-	public function setOnAfterInit(callable $onAfterInit): self
+	public function setOnAfterMapToForm(callable $onAfterMapToForm): self
 	{
-		$this->onAfterInit[] = $onAfterInit;
+		$this->onAfterMapToForm[] = $onAfterMapToForm;
 		return $this;
 	}
 
-	public function setOnBeforeProcess(callable $onBeforeProcess): self
+	public function setOnAfterMapToEntity(callable $onAfterMapToEntity): self
 	{
-		$this->onBeforeProcess[] = $onBeforeProcess;
+		$this->onAfterMapToEntity[] = $onAfterMapToEntity;
 		return $this;
 	}
 
