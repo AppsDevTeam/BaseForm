@@ -162,8 +162,6 @@ abstract class BaseForm extends Control
 			
 			call_user_func([static::class, static::$renderer], $form);
 
-			$presenter->payload->hasErrors = true;
-
 			$renderer->wrappers['error']['container'] = null;
 			$presenter->payload->snippets['snippet-' . $form->getElementPrototype()->getAttribute('id') . '-errors'] = $renderer->renderErrors();
 
