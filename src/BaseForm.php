@@ -149,7 +149,9 @@ abstract class BaseForm extends Control
 			}
 		}
 
-		$this->onAfterProcess($form, $form->getValues());
+		if ($form->isValid()) {
+			$this->onAfterProcess($form, $form->getValues());
+		}
 	}
 
 	public static function sendErrorPayload(Form $form)
@@ -159,6 +161,8 @@ abstract class BaseForm extends Control
 			$presenter = $form->getPresenter();
 			
 			call_user_func([static::class, static::$renderer], $form);
+
+			$presenter->payload->hasErrors = true;
 
 			$renderer->wrappers['error']['container'] = null;
 			$presenter->payload->snippets['snippet-' . $form->getElementPrototype()->getAttribute('id') . '-errors'] = $renderer->renderErrors();
