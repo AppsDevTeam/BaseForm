@@ -11,20 +11,6 @@ use Nette\Application\UI\Form;
 use Vodacek\Forms\Controls\DateInput;
 use \Closure;
 
-/**
- * @method Container addDynamic($name, $factory, $createDefault = 0, $forceDefault = FALSE)
- * @method DateInput addDate($name, $label, $type = 'datetime-local')
- * @method PhoneNumberInput addPhoneNumber($name, $label = null)
- * @method EmailStrictInput addEmailStrict($name, $label = null, $errorMessage = 'Invalid email address.')
- * @method CurrencyInput addCurrency($name, $label = null, $currency = null)
- * @method ToOneContainer toOne(string $name, Closure $containerFactory, ?Closure $entityFactory = null, ?string $isFilledComponentName = null, ?string $isRequiredMessage = null)
- * @method ToManyContainer toMany(string $name, Closure $containerFactory, ?Closure $entityFactory = null, ?string $isFilledComponentName = null, ?string $isRequiredMessage = null)
- */
-interface EntityFormInterface
-{
-
-}
-
 trait EntityFormTrait
 {
 	/**
@@ -41,13 +27,29 @@ trait EntityFormTrait
 }
 
 if (trait_exists(\ADT\DoctrineForms\EntityForm::class)) {
-	class EntityForm extends Form implements EntityFormInterface
+	/**
+	 * @method Container addDynamic($name, $factory, $createDefault = 0, $forceDefault = FALSE)
+	 * @method DateInput addDate($name, $label, $type = 'datetime-local')
+	 * @method PhoneNumberInput addPhoneNumber($name, $label = null)
+	 * @method EmailStrictInput addEmailStrict($name, $label = null, $errorMessage = 'Invalid email address.')
+	 * @method CurrencyInput addCurrency($name, $label = null, $currency = null)
+	 * @method ToOneContainer toOne(string $name, Closure $containerFactory, ?Closure $entityFactory = null, ?string $isFilledComponentName = null, ?string $isRequiredMessage = null)
+	 * @method ToManyContainer toMany(string $name, Closure $containerFactory, ?Closure $entityFactory = null, ?string $isFilledComponentName = null, ?string $isRequiredMessage = null)
+	 */
+	class EntityForm extends Form
 	{
 		use EntityFormTrait;
 		use \ADT\DoctrineForms\EntityForm;
 	}
 } else {
-	class EntityForm extends Form implements EntityFormInterface
+	/**
+	 * @method Container addDynamic($name, $factory, $createDefault = 0, $forceDefault = FALSE)
+	 * @method DateInput addDate($name, $label, $type = 'datetime-local')
+	 * @method PhoneNumberInput addPhoneNumber($name, $label = null)
+	 * @method EmailStrictInput addEmailStrict($name, $label = null, $errorMessage = 'Invalid email address.')
+	 * @method CurrencyInput addCurrency($name, $label = null, $currency = null)
+	 */
+	class EntityForm extends Form
 	{
 		use EntityFormTrait;
 	}
