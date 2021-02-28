@@ -55,10 +55,10 @@ abstract class BaseForm extends Control
 
 	abstract protected function init(EntityForm $form);
 
-	public function __construct(Container $dic)
+	public function __construct()
 	{
-		$this->monitor(Presenter::class, function($presenter) use ($dic) {
-			$form = $this->getForm()->setDic($dic);
+		$this->monitor(Presenter::class, function($presenter) {
+			$form = $this->getForm();
 
 			/** @link BaseForm::validateFormCallback() */
 			/** @link BaseForm::processFormCallback() */
@@ -73,13 +73,15 @@ abstract class BaseForm extends Control
 				// we want default events to be executed first
 				array_unshift($form->$event, [$this, $callback]);
 			}
+			
+			$form->setRenderer(new FormRenderer($form));
+
+			$this->onBeforeInit($form);
 
 			if ($this->row) {
 				$form->setEntity($this->row);
 			}
-
-			$this->onBeforeInit($form);
-
+			
 			$this->init($form);
 
 			$this->onAfterInit($form);
