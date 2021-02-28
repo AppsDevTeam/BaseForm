@@ -5,13 +5,11 @@ namespace ADT\BaseForm;
 use ADT\DoctrineForms\ToManyContainer;
 use ADT\DoctrineForms\ToOneContainer;
 use ADT\EmailStrictInput;
-use ADT\Forms\Controls\CurrencyInput;
 use ADT\Forms\Controls\PhoneNumberInput;
 use Kdyby\Replicator\Container;
 use Nette\Application\UI\Form;
-use Nette\Forms\IFormRenderer;
 use Vodacek\Forms\Controls\DateInput;
-use Closure;
+use \Closure;
 
 /**
  * @method Container addDynamic($name, $factory, $createDefault = 0, $forceDefault = FALSE)
@@ -22,20 +20,36 @@ use Closure;
  * @method ToOneContainer toOne(string $name, Closure $containerFactory, ?Closure $entityFactory = null, ?string $isFilledComponentName = null, ?string $isRequiredMessage = null)
  * @method ToManyContainer toMany(string $name, Closure $containerFactory, ?Closure $entityFactory = null, ?string $isFilledComponentName = null, ?string $isRequiredMessage = null)
  */
-class EntityForm extends Form
+interface EntityFormInterface
 {
-	use \ADT\DoctrineForms\EntityForm;
 
-	protected ?IFormRenderer $renderer = null;
+}
 
+trait EntityFormTrait
+{
 	/**
-	 * Returns form renderer.
+	 * Adds global error message.
+	 * @param  string|object  $message
 	 */
-	public function getRenderer(): IFormRenderer
+	public function addError($message, bool $translate = true): void
 	{
-		if ($this->renderer === null) {
-			$this->renderer = new FormRenderer($this);
+		if ($translate && $this->getTranslator()) {
+			$message = $this->getTranslator()->translate($message);
 		}
-		return $this->renderer;
+		parent::addError($message, false);
 	}
 }
+
+if (trait_exists(\ADT\DoctrineForms\EntityForm::class)) {
+	class EntityForm extends Form implements EntityFormInterface
+	{
+		use EntityFormTrait;
+		use \ADT\DoctrineForms\EntityForm;
+	}
+} else {
+	class EntityForm extends Form implements EntityFormInterface
+	{
+		use EntityFormTrait;
+	}
+}
+
