@@ -67,12 +67,8 @@ abstract class BaseForm extends Control
 			if ($this->row) {
 				$form->setEntity($this->row);
 			}
-
-			bd ($this->getName());
 			
 			$this->init($form);
-
-			bd ($this->getName());
 
 			$this->onAfterInit($form);
 
