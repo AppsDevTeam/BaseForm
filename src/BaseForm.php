@@ -51,7 +51,6 @@ abstract class BaseForm extends Control
 			/** @link BaseForm::validateFormCallback() */
 			/** @link BaseForm::processFormCallback() */
 			/** @link BaseForm::sendErrorPayload() */
-			/** @link BaseForm::bootstrap4() */
 			foreach(['onValidate' => 'validateFormCallback', 'onSuccess' => 'processFormCallback', 'onError' => 'sendErrorPayload'] as $event => $callback) {
 				// first argument of array_unshift has to be an array
 				if ($form->$event === null) {
@@ -139,29 +138,6 @@ abstract class BaseForm extends Control
 
 		if ($form->isValid()) {
 			$this->onAfterProcess($form, $form->getValues());
-		}
-	}
-
-	public static function sendErrorPayload(Form $form)
-	{
-		if ($form->getPresenter()->isAjax()) {
-			$renderer = $form->getRenderer();
-			$presenter = $form->getPresenter();
-			
-			call_user_func([static::class, static::$renderer], $form);
-
-			$renderer->wrappers['error']['container'] = null;
-			$presenter->payload->snippets['snippet-' . $form->getElementPrototype()->getAttribute('id') . '-errors'] = $renderer->renderErrors();
-
-			$renderer->wrappers['control']['errorcontainer'] = null;
-			/** @var IControl $control */
-			foreach ($form->getControls() as $control) {
-				if ($control->getErrors()) {
-					$presenter->payload->snippets['snippet-' . $control->getHtmlId() . '-errors'] = $renderer->renderErrors($control);
-				}
-			}
-
-			$presenter->sendPayload();
 		}
 	}
 
