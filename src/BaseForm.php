@@ -218,4 +218,9 @@ abstract class BaseForm extends Control
 		$this->setOnAfterProcess($onSuccess);
 		return $this;
 	}
+
+	public function getForm(): Form
+	{
+		return $this['form'];
+	}
 }
