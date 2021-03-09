@@ -50,8 +50,7 @@ abstract class BaseForm extends Control
 
 			/** @link BaseForm::validateFormCallback() */
 			/** @link BaseForm::processFormCallback() */
-			/** @link BaseForm::sendErrorPayload() */
-			foreach(['onValidate' => 'validateFormCallback', 'onSuccess' => 'processFormCallback', 'onError' => 'sendErrorPayload'] as $event => $callback) {
+			foreach(['onValidate' => 'validateFormCallback', 'onSuccess' => 'processFormCallback'] as $event => $callback) {
 				// first argument of array_unshift has to be an array
 				if ($form->$event === null) {
 					$form->$event = [];
