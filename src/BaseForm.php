@@ -65,7 +65,7 @@ abstract class BaseForm extends Control
 			if ($this->row) {
 				$form->setEntity($this->row);
 			}
-			
+
 			$this->init($form);
 
 			$this->onAfterInit($form);
@@ -87,6 +87,9 @@ abstract class BaseForm extends Control
 		});
 	}
 
+	/**
+	 * @param Form $form
+	 */
 	public function validateFormCallback($form)
 	{
 		if (!method_exists($this, 'validateForm')) {
@@ -97,7 +100,7 @@ abstract class BaseForm extends Control
 			$this->validateForm($form->getEntity());
 		}
 		else {
-			$this->validateForm($form->values);
+			$this->validateForm($form->getUnsafeValues(null));
 		}
 	}
 
