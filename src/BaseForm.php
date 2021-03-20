@@ -50,9 +50,7 @@ abstract class BaseForm extends Control
 
 			/** @link BaseForm::validateFormCallback() */
 			/** @link BaseForm::processFormCallback() */
-			/** @link BaseForm::sendErrorPayload() */
-			/** @link BaseForm::bootstrap4() */
-			foreach(['onValidate' => 'validateFormCallback', 'onSuccess' => 'processFormCallback', 'onError' => 'sendErrorPayload'] as $event => $callback) {
+			foreach(['onValidate' => 'validateFormCallback', 'onSuccess' => 'processFormCallback'] as $event => $callback) {
 				// first argument of array_unshift has to be an array
 				if ($form->$event === null) {
 					$form->$event = [];
@@ -68,15 +66,11 @@ abstract class BaseForm extends Control
 				$form->setEntity($this->row);
 			}
 
-			bd ($this->getName());
-			
 			$this->init($form);
-
-			bd ($this->getName());
 
 			$this->onAfterInit($form);
 
-			if ($this->row) {
+			if ($this->row && !$this->getForm()->isSubmitted()) {
 				$form->mapToForm();
 
 				$this->onAfterMapToForm($form);
@@ -93,6 +87,9 @@ abstract class BaseForm extends Control
 		});
 	}
 
+	/**
+	 * @param Form $form
+	 */
 	public function validateFormCallback($form)
 	{
 		if (!method_exists($this, 'validateForm')) {
@@ -103,7 +100,7 @@ abstract class BaseForm extends Control
 			$this->validateForm($form->getEntity());
 		}
 		else {
-			$this->validateForm($form->values);
+			$this->validateForm($form->getUnsafeValues(null));
 		}
 	}
 
@@ -143,29 +140,6 @@ abstract class BaseForm extends Control
 
 		if ($form->isValid()) {
 			$this->onAfterProcess($form, $form->getValues());
-		}
-	}
-
-	public static function sendErrorPayload(Form $form)
-	{
-		if ($form->getPresenter()->isAjax()) {
-			$renderer = $form->getRenderer();
-			$presenter = $form->getPresenter();
-			
-			call_user_func([static::class, static::$renderer], $form);
-
-			$renderer->wrappers['error']['container'] = null;
-			$presenter->payload->snippets['snippet-' . $form->getElementPrototype()->getAttribute('id') . '-errors'] = $renderer->renderErrors();
-
-			$renderer->wrappers['control']['errorcontainer'] = null;
-			/** @var IControl $control */
-			foreach ($form->getControls() as $control) {
-				if ($control->getErrors()) {
-					$presenter->payload->snippets['snippet-' . $control->getHtmlId() . '-errors'] = $renderer->renderErrors($control);
-				}
-			}
-
-			$presenter->sendPayload();
 		}
 	}
 
@@ -245,5 +219,10 @@ abstract class BaseForm extends Control
 	{
 		$this->setOnAfterProcess($onSuccess);
 		return $this;
+	}
+
+	public function getForm(): Form
+	{
+		return $this['form'];
 	}
 }
