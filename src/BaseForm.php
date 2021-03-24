@@ -70,7 +70,7 @@ abstract class BaseForm extends Control
 
 			$this->onAfterInit($form);
 
-			if ($this->row && !$this->getForm()->isSubmitted()) {
+			if ($this->row) {
 				$form->mapToForm();
 
 				$this->onAfterMapToForm($form);
