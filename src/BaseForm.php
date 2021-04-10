@@ -70,7 +70,7 @@ abstract class BaseForm extends Control
 
 			$this->onAfterInit($form);
 
-			if ($this->row && !$this->getForm()->isSubmitted()) {
+			if ($this->row) {
 				$form->mapToForm();
 
 				$this->onAfterMapToForm($form);
@@ -104,7 +104,7 @@ abstract class BaseForm extends Control
 		}
 	}
 
-	public function processFormCallback($form)
+	private function processFormCallback($form)
 	{
 		if ($form->isSubmitted()->getValidationScope() !== null) {
 			return;
